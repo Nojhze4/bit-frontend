@@ -1,0 +1,20 @@
+.cart-container {
+  max-width: 600px;
+  margin: 40px auto;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px var(--shadow-dark);
+  padding: 32px 24px;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.cart-container h1 {
+  color: var(--primary-blue);
+  margin-bottom: 1.5rem;
+}
+
+.cart-container p {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}

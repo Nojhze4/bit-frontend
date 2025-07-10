@@ -1,2 +1,19 @@
+<div class="games-container">
+  <h1>Juegos Disponibles</h1>
 
-<p>juegos works!</p>
+  <div *ngIf="isLoading" class="loading">Cargando juegos...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div *ngIf="!isLoading && !error && games.length === 0" class="empty">No hay juegos disponibles.</div>
+
+  <div *ngIf="games.length > 0" class="games-list">
+    <div *ngFor="let game of games" class="game-card">
+      <h2>{{ game.title }}</h2>
+      <p class="game-desc">{{ game.description }}</p>
+      <div class="game-meta">
+        <span *ngIf="game.price">💲 {{ game.price | currency:'USD':'symbol':'1.0-0' }}</span>
+        <span *ngIf="game.platform">🎮 {{ game.platform }}</span>
+      </div>
+    </div>
+  </div>
+</div>
