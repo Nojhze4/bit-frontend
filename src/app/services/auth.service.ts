@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 export interface User {
-  id: number;
+  id?: string;
+  _id?: string;
   email: string;
   name?: string;
+  username?: string;
   role?: string;
 }
 
@@ -21,7 +23,7 @@ export interface LoginResponse {
 export class AuthService {
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
-  private apiUrl = 'http://localhost:4000';
+  private apiUrl = 'http://localhost:4000/users';
 
   constructor(private http: HttpClient) {
     this.currentUserSubject = new BehaviorSubject<User | null>(
@@ -39,29 +41,22 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, {
       email,
       password
     }).pipe(
       map(response => {
-        // Store token and user data
         localStorage.setItem('authToken', response.token);
         localStorage.setItem('userData', JSON.stringify(response.user));
-        
-        // Update current user
         this.currentUserSubject.next(response.user);
-        
         return response;
       })
     );
   }
 
   logout(): void {
-    // Remove token and user data
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
-    
-    // Update current user
     this.currentUserSubject.next(null);
   }
 
@@ -74,7 +69,6 @@ export class AuthService {
     return userData ? JSON.parse(userData) : null;
   }
 
-  // Method to check if token is valid (you can call this on app startup)
   validateToken(): Observable<boolean> {
     const token = this.getToken();
     if (!token) {
@@ -83,14 +77,12 @@ export class AuthService {
         observer.complete();
       });
     }
-
-    return this.http.get<{valid: boolean}>(`${this.apiUrl}/auth/validate`).pipe(
-      map(response => response.valid)
+    return this.http.get<{ message: string; user: any }>(`${this.apiUrl}/verify`).pipe(
+      map(response => !!response.user),
+      catchError(() => {
+        this.logout();
+        return of(false);
+      })
     );
-  }
-
-  // Method to refresh token if needed
-  refreshToken(): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/refresh`, {});
   }
 } 

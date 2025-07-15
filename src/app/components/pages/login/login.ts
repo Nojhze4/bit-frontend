@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -42,7 +43,7 @@ export class LoginComponent implements OnInit {
 
       const { email, password } = this.loginForm.value;
 
-      this.http.post<any>('http://localhost:4000/auth/login', {
+      this.http.post<any>('http://localhost:4000/users/login', {
         email,
         password
       }).subscribe({

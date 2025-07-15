@@ -1,1 +1,184 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Panel de Administración</h1>
+    <button class="btn btn-secondary logout-btn" (click)="logout()">
+      Cerrar sesión
+    </button>
+  </div>
+
+  <div class="add-game-section">
+    <button class="btn btn-primary" (click)="showAddForm = !showAddForm">
+      {{ showAddForm ? 'Cancelar' : 'Agregar Juego' }}
+    </button>
+    <form *ngIf="showAddForm" class="add-game-form" (ngSubmit)="addGame()">
+      <input
+        type="text"
+        placeholder="Nombre"
+        [(ngModel)]="newGame.name"
+        name="name"
+        required
+      />
+
+      <select [(ngModel)]="newGame.consola" name="consola" required>
+        <option value="">Seleccionar Consola</option>
+        <option value="PlayStation">PlayStation</option>
+        <option value="Xbox">Xbox</option>
+        <option value="Nintendo">Nintendo</option>
+      </select>
+
+      <select [(ngModel)]="newGame.genero" name="genero" required>
+        <option value="">Seleccionar Género</option>
+        <option value="Acción">Acción</option>
+        <option value="Aventura">Aventura</option>
+        <option value="RPG">RPG</option>
+        <option value="Estrategia">Estrategia</option>
+        <option value="Deportes">Deportes</option>
+        <option value="Carreras">Carreras</option>
+        <option value="Shooter">Shooter</option>
+        <option value="Plataformas">Plataformas</option>
+        <option value="Puzzle">Puzzle</option>
+        <option value="Otros">Otros</option>
+      </select>
+
+      <textarea
+        placeholder="Descripción"
+        [(ngModel)]="newGame.descripcion"
+        name="descripcion"
+        required
+      ></textarea>
+      <input
+        placeholder="Precio"
+        type="number"
+        [(ngModel)]="newGame.precio"
+        name="precio"
+        min="0"
+        required
+      />
+      <input
+        placeholder="Stock"
+        type="number"
+        [(ngModel)]="newGame.stock"
+        name="stock"
+        min="0"
+        required
+      />
+
+      <select [(ngModel)]="newGame.rating" name="rating" required>
+        <option value="">Seleccionar Rating</option>
+        <option value="E">E - Para todos</option>
+        <option value="E10+">E10+ - Para mayores de 10</option>
+        <option value="T">T - Adolescentes</option>
+        <option value="M">M - Maduro</option>
+        <option value="AO">AO - Solo adultos</option>
+      </select>
+
+      <div class="checkbox-group">
+        <label>
+          <input
+            type="checkbox"
+            [(ngModel)]="newGame.multiplayer"
+            name="multiplayer"
+          />
+          Multiplayer
+        </label>
+      </div>
+
+      <button class="btn btn-success" type="submit">Guardar</button>
+    </form>
+  </div>
+
+  <div class="dashboard-legend">
+    <div class="legend-item">
+      <span class="legend-color stock-low"></span>
+      <span>Stock Bajo (≤5)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color stock-medium"></span>
+      <span>Stock Medio (6-15)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color stock-high"></span>
+      <span>Stock Alto (>15)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color price-low"></span>
+      <span>Precio Bajo (≤$50k)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color price-medium"></span>
+      <span>Precio Medio ($51k-$100k)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color price-high"></span>
+      <span>Precio Alto (>$100k)</span>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Cargando juegos...</p>
+  </div>
+
+  <div *ngIf="error && !isLoading" class="error-container">
+    <p>{{ error }}</p>
+    <button (click)="loadGames()" class="btn btn-primary">Reintentar</button>
+  </div>
+
+  <div *ngIf="!isLoading && !error">
+    <table class="games-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Género</th>
+          <th>Precio</th>
+          <th>Stock</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let game of games; let i = index">
+          <td>{{ game.name }}</td>
+          <td>{{ game.genero }}</td>
+          <td *ngIf="editIndex !== i">
+            <div class="price-indicator" [ngClass]="getPriceClass(game.precio)">
+              {{ game.precio | currency:'COP':'symbol':'1.0-0' }}
+            </div>
+          </td>
+          <td *ngIf="editIndex === i">
+            <input type="number" [(ngModel)]="editedGame.precio" min="0" />
+          </td>
+          <td *ngIf="editIndex !== i">{{ game.stock }}</td>
+          <td *ngIf="editIndex === i">
+            <input type="number" [(ngModel)]="editedGame.stock" min="0" />
+          </td>
+          <td>
+            <button
+              *ngIf="editIndex !== i"
+              class="btn btn-primary"
+              (click)="startEdit(i)"
+            >
+              Editar
+            </button>
+            <button
+              *ngIf="editIndex === i"
+              class="btn btn-success"
+              (click)="saveEdit(game)"
+            >
+              Guardar
+            </button>
+            <button
+              *ngIf="editIndex === i"
+              class="btn btn-secondary"
+              (click)="cancelEdit()"
+            >
+              Cancelar
+            </button>
+            <button class="btn btn-secondary" (click)="deleteGame(game, i)">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

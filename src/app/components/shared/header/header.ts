@@ -1,35 +1,33 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { NgIf } from '@angular/common';
+import { CartService } from '../../../services/cart.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, RouterModule],
+  standalone: true,
+  imports: [RouterModule, NgIf],
   templateUrl: './header.html',
-  styleUrl: './header.css'
+  styleUrls: ['./header.css']
 })
-export class Header implements OnInit {
-  currentUser: any = null;
-  isAuthenticated = false;
+export class HeaderComponent implements OnInit, OnDestroy {
+  cartItemCount = 0;
+  private cartSubscription: Subscription = new Subscription();
 
-  constructor(private router: Router) {}
+  constructor(private cartService: CartService) {}
 
   ngOnInit() {
-    // Check if user is logged in
-    const token = localStorage.getItem('authToken');
-    const userData = localStorage.getItem('userData');
-    
-    if (token && userData) {
-      this.isAuthenticated = true;
-      this.currentUser = JSON.parse(userData);
-    }
+    this.cartSubscription = this.cartService.getCartItems().subscribe(items => {
+      this.cartItemCount = this.cartService.getCartItemCount();
+    });
   }
 
-  logout() {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
-    this.isAuthenticated = false;
-    this.currentUser = null;
-    this.router.navigate(['/login']);
+  ngOnDestroy() {
+    this.cartSubscription.unsubscribe();
+  }
+
+  openCart() {
+    this.cartService.showCart();
   }
 }

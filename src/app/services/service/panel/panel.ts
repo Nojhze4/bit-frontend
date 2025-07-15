@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-panel',
@@ -11,14 +12,14 @@ import { RouterModule } from '@angular/router';
 export class Panel {
   private gamesUrl = 'http://localhost:4000/games';
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient, private toastr: ToastrService) {
     this.getGames();
   }
 
   getGames() {
     this.httpClient.get(this.gamesUrl).subscribe({
       next: (data) => {
-        console.log('Games:', data);
+        this.toastr.success('Juegos cargados correctamente');
       },
       error: (err) => {
         console.error('Error fetching games:', err);
