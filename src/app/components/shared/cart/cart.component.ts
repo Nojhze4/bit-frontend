@@ -18,7 +18,7 @@ import { ToastrService } from 'ngx-toastr';
         
         <div class="cart-content">
           <div *ngIf="cartItems.length === 0" class="empty-cart">
-            <div class="empty-icon">🛒</div>
+            <div class="empty-icon"><i class="bi bi-cart4"></i></div>
             <h3>Tu compra está vacía</h3>
             <p>Agrega algunos productos para comenzar a comprar</p>
           </div>

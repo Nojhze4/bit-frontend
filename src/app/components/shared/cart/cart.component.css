@@ -1,4 +1,3 @@
-/* Overlay del carrito */
 .cart-overlay {
   position: fixed;
   top: 0;
@@ -20,7 +19,7 @@
   visibility: visible;
 }
 
-/* Modal del carrito */
+
 .cart-modal {
   background: var(--bg-primary);
   border-radius: 12px;

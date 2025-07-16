@@ -1,6 +1,6 @@
 <div class="products-container">
   <div class="products-header">
-    <h1>🛍️ Productos</h1>
+    <h1><i class="bi bi-bag"></i> Productos</h1>
     <p class="products-subtitle">Explora nuestra amplia selección de juegos por consola</p>
   </div>
 
@@ -26,28 +26,28 @@
           [class.active]="activeTab === 'todos'"
           class="tab-btn"
         >
-          🎯 Todos los Juegos
+          <i class="bi bi-controller"></i> Todos los Juegos
         </button>
         <button 
           (click)="setActiveTab('playstation')" 
           [class.active]="activeTab === 'playstation'"
           class="tab-btn"
         >
-          🎮 PlayStation
+          <i class="bi bi-playstation"></i> PlayStation
         </button>
         <button 
           (click)="setActiveTab('xbox')" 
           [class.active]="activeTab === 'xbox'"
           class="tab-btn"
         >
-          🎮 Xbox
+          <i class="bi bi-xbox"></i> Xbox
         </button>
         <button 
           (click)="setActiveTab('nintendo')" 
           [class.active]="activeTab === 'nintendo'"
           class="tab-btn"
         >
-          🎮 Nintendo
+          <i class="bi bi-nintendo-switch"></i> Nintendo
         </button>
       </div>
     </div>
@@ -63,7 +63,7 @@
     <!-- Filtros -->
     <div class="filters-section">
       <div class="filters-header">
-        <h3>🔍 Filtros</h3>
+        <h3><i class="bi bi-funnel"></i> Filtros</h3>
         <button (click)="clearFilters()" class="btn btn-secondary btn-sm">Limpiar Filtros</button>
       </div>
       
@@ -110,7 +110,7 @@
     <!-- Resultados -->
     <div class="results-section">
       <div class="results-header">
-        <h3>📋 Resultados ({{ filteredProducts.length }} productos)</h3>
+        <h3><i class="bi bi-clipboard"></i> Resultados ({{ filteredProducts.length }} productos)</h3>
         <div class="console-badge" *ngIf="activeTab !== 'todos'">
           <span class="badge console-badge" [style.background-color]="getConsoleColor(activeTab)">
             {{ getConsoleName(activeTab) }}
@@ -120,7 +120,7 @@
 
       <!-- Empty State -->
       <div *ngIf="filteredProducts.length === 0" class="empty-container">
-        <div class="empty-icon">🎮</div>
+        <div class="empty-icon"><i class="bi bi-controller"></i></div>
         <h3>No se encontraron juegos</h3>
         <p *ngIf="activeTab === 'todos'">Intenta ajustar los filtros para encontrar más juegos</p>
         <p *ngIf="activeTab !== 'todos'">No hay juegos disponibles para {{ getConsoleName(activeTab) }} con los filtros actuales</p>
@@ -169,7 +169,7 @@
               <div class="product-price-stock">
                 <span class="price">{{ product.price | currency:'COP':'symbol':'1.0-0' }}</span>
                 <span class="stock" [class.in-stock]="product.stock > 0" [class.out-of-stock]="product.stock === 0">
-                  {{ product.stock > 0 ? '📦 En stock' : '❌ Sin stock' }}
+                  {{ product.stock > 0 ? 'En stock' : 'Sin stock' }}
                 </span>
               </div>
             </div>
@@ -179,7 +179,7 @@
                 class="btn btn-primary buy-btn" 
                 [disabled]="product.stock === 0"
                 (click)="buyProduct(product)">
-                {{ product.stock > 0 ? '🛒 Comprar' : 'Sin stock' }}
+                {{ product.stock > 0 ? ' Comprar' : 'Sin stock' }}
               </button>
               <button 
                 class="btn btn-secondary details-btn" 
@@ -194,7 +194,7 @@
                 <div class="details-header">
                   <h4>📋 Especificaciones Técnicas</h4>
                   <button class="close-details" (click)="toggleProductDetails(product.id); $event.stopPropagation()">
-                    ×
+                    <i class="bi bi-x-circle"></i>
                   </button>
                 </div>
                 
@@ -202,27 +202,27 @@
                   <!-- Especificaciones específicas por tipo -->
                   <div *ngIf="product.type === 'juego'" class="specs-section">
                     <div class="spec-item">
-                      <span class="spec-label">🎮 Género:</span>
+                      <span class="spec-label"><i class="bi bi-dpad-fill"></i> Género:</span>
                       <span class="spec-value">{{ product.category }}</span>
                     </div>
                     <div class="spec-item">
-                      <span class="spec-label">🏢 Desarrollador:</span>
+                      <span class="spec-label"><i class="bi bi-building"></i> Desarrollador:</span>
                       <span class="spec-value">{{ product.brand }}</span>
                     </div>
                     <div class="spec-item">
-                      <span class="spec-label">🎮 Plataforma:</span>
+                      <span class="spec-label"><i class="bi bi-controller"></i> Plataforma:</span>
                       <span class="spec-value">{{ getConsoleName(activeTab) }}</span>
                     </div>
                     <div class="spec-item">
-                      <span class="spec-label">📅 Lanzamiento:</span>
+                      <span class="spec-label"><i class="bi bi-calendar"></i> Lanzamiento:</span>
                       <span class="spec-value">2023-2024</span>
                     </div>
                     <div class="spec-item">
-                      <span class="spec-label">👥 Jugadores:</span>
+                      <span class="spec-label"><i class="bi bi-person-fill"></i> Jugadores:</span>
                       <span class="spec-value">1-4 jugadores</span>
                     </div>
                     <div class="spec-item">
-                      <span class="spec-label">🌍 Idioma:</span>
+                      <span class="spec-label"><i class="bi bi-globe"></i> Idioma:</span>
                       <span class="spec-value">Español, Inglés</span>
                     </div>
                   </div>

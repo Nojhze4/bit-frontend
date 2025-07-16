@@ -17,6 +17,8 @@ export class Home implements OnInit {
   isLoading = true;
   error: string | null = null;
 
+ 
+
   constructor(private homeService: HomeService) {}
 
   ngOnInit() {
