@@ -456,3 +456,38 @@
     min-width: 150px;
   }
 }
+
+/* Banner responsive */
+.gif-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 1.5rem 0;
+}
+
+.gif-container img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+@media (max-width: 768px) {
+  .featured-games-section h2 {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+  .gif-container {
+    margin: 1rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .gif-container img {
+    border-radius: 8px;
+  }
+  .container {
+    padding: 0 8px;
+  }
+}
