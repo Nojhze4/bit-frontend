@@ -1,6 +1,3 @@
-/* =====================
-   DASHBOARD LAYOUT
-   ===================== */
 .dashboard-container {
   max-width: 900px;
   margin: var(--spacing-xl) auto;
@@ -39,9 +36,6 @@
   background: #b91c1c;
 }
 
-/* =====================
-   TABLAS
-   ===================== */
 .games-table {
   width: 100%;
   border-collapse: collapse;
@@ -87,9 +81,6 @@
   font-size: var(--font-size-base);
 }
 
-/* =====================
-   FORMULARIOS
-   ===================== */
 .add-game-section {
   margin-bottom: var(--spacing-xl);
   display: flex;
@@ -139,9 +130,6 @@
   margin-right: var(--spacing-sm);
 }
 
-/* =====================
-   LEYENDA
-   ===================== */
 .dashboard-legend {
   display: flex;
   flex-wrap: wrap;
@@ -202,9 +190,6 @@
   color: var(--pure-white);
 }
 
-/* =====================
-   UPLOAD DE IMÁGENES
-   ===================== */
 .image-upload-section {
   margin: var(--spacing-md) 0;
   width: 100%;
@@ -249,9 +234,6 @@
   min-height: auto;
 }
 
-/* =====================
-   IMÁGENES DE JUEGOS
-   ===================== */
 .game-image-cell {
   width: 80px;
   vertical-align: middle;
@@ -319,9 +301,6 @@
   transform: scale(1.1);
 }
 
-/* =====================
-   RESPONSIVE
-   ===================== */
 @media (max-width: 700px) {
   .dashboard-container {
     padding: var(--spacing-md) var(--spacing-sm);
