@@ -54,6 +54,12 @@ export class Dashboard implements OnInit {
   };
   newAccessory: Partial<ProductModel> & { selectedFile?: File | null, brand?: string } = { name: '', price: 0, category: '', stock: 0, description: '', imageUrl: '', selectedFile: null, brand: '' };
 
+  editConsoleIndex: number | null = null;
+  editedConsole: Partial<ProductModel> = {};
+  editAccessoryIndex: number | null = null;
+  editedAccessory: Partial<ProductModel> = {};
+  successMessage: string | null = null;
+
   constructor(
     private gamesService: GamesService,
     private productService: ProductService,
@@ -214,7 +220,8 @@ export class Dashboard implements OnInit {
             this.showAddForm = false;
             this.resetForm();
             this.error = null;
-            this.router.navigate(['/productos']);
+            this.successMessage = 'Juego agregado exitosamente';
+            setTimeout(() => this.successMessage = null, 2500);
           } else {
             this.error = response.message;
           }
@@ -326,63 +333,248 @@ export class Dashboard implements OnInit {
     }
   }
 
-  addConsole() {
-    const consoleData = {
-      name: this.newConsole.name,
-      brand: this.newConsole.brand,
-      model: this.newConsole.model,
-      price: this.newConsole.price,
-      stock: this.newConsole.stock,
-      description: this.newConsole.description,
-      imageUrl: this.newConsole.imageUrl,
-      features: this.newConsole.features,
-      releaseYear: this.newConsole.releaseYear,
-      color: this.newConsole.color
-    };
+  async addConsole() {
+    if (!this.newConsole.name || !this.newConsole.brand || !this.newConsole.model || !this.newConsole.description || this.newConsole.price === undefined) {
+      this.error = 'Todos los campos son requeridos: nombre, marca, modelo, descripción y precio';
+      return;
+    }
+    try {
+      let imageUrl = '';
+      if (this.newConsole.selectedFile) {
+        imageUrl = await this.uploadConsoleImage();
+      }
+      const consoleData = {
+        ...this.newConsole,
+        imageUrl,
+        category: this.newConsole.brand // Asegura que category esté presente
+      };
+      this.productService.createConsole(consoleData).subscribe({
+        next: (response) => {
+          console.log('Respuesta backend:', response);
+          if (response.allOK) {
+            // Forzar el campo category en el objeto recibido
+            const newConsole = { ...response.data, category: (response.data as any).brand || '' };
+            this.consoles.push(newConsole);
+            this.showAddConsoleForm = false;
+            this.resetConsoleForm();
+            this.error = null;
+            this.successMessage = 'Consola agregada exitosamente';
+            setTimeout(() => this.successMessage = null, 2500);
+          } else {
+            this.error = response.message;
+            console.error('Error de backend:', response.message);
+          }
+        },
+        error: (err) => {
+          this.error = 'Error al agregar la consola.';
+          console.error('Error en observable:', err);
+        }
+      });
+    } catch (error) {
+      this.error = error as string;
+      console.error('Error en catch:', error);
+    }
+  }
 
-    this.productService.createConsole(consoleData).subscribe({
+  async addAccessory() {
+    if (!this.newAccessory.name || !this.newAccessory.category || !this.newAccessory.description || this.newAccessory.price === undefined) {
+      this.error = 'Todos los campos son requeridos: nombre, categoría, descripción y precio';
+      return;
+    }
+    try {
+      let imageUrl = '';
+      if (this.newAccessory.selectedFile) {
+        imageUrl = await this.uploadAccessoryImage();
+      }
+      const accessoryData = {
+        ...this.newAccessory,
+        imageUrl
+      };
+      this.productService.createAccessory(accessoryData).subscribe({
+        next: (response) => {
+          if (response.allOK) {
+            this.accessories.push(response.data);
+            this.showAddAccessoryForm = false;
+            this.resetAccessoryForm();
+            this.error = null;
+            this.successMessage = 'Accesorio agregado exitosamente';
+            setTimeout(() => this.successMessage = null, 2500);
+          } else {
+            this.error = response.message;
+          }
+        },
+        error: (err) => {
+          this.error = 'Error al agregar el accesorio.';
+          console.error('Error:', err);
+        }
+      });
+    } catch (error) {
+      this.error = error as string;
+    }
+  }
+
+  resetConsoleForm() {
+    this.newConsole = {
+      name: '',
+      brand: '',
+      model: '',
+      price: 0,
+      stock: 0,
+      description: '',
+      imageUrl: '',
+      selectedFile: null,
+      features: '',
+      releaseYear: undefined,
+      color: ''
+    };
+  }
+
+  resetAccessoryForm() {
+    this.newAccessory = { name: '', price: 0, category: '', stock: 0, description: '', imageUrl: '', selectedFile: null, brand: '' };
+  }
+
+  uploadConsoleImage(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!this.newConsole.selectedFile) {
+        reject('No hay archivo seleccionado para la consola');
+        return;
+      }
+      this.isUploading = true;
+      this.uploadService.uploadImage(this.newConsole.selectedFile).subscribe({
+        next: (response) => {
+          this.isUploading = false;
+          if (response.allOK) {
+            resolve(response.data.imageUrl);
+          } else {
+            reject(response.message);
+          }
+        },
+        error: (err) => {
+          this.isUploading = false;
+          reject('Error al subir la imagen de la consola');
+        }
+      });
+    });
+  }
+
+  uploadAccessoryImage(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!this.newAccessory.selectedFile) {
+        reject('No hay archivo seleccionado para el accesorio');
+        return;
+      }
+      this.isUploading = true;
+      this.uploadService.uploadImage(this.newAccessory.selectedFile).subscribe({
+        next: (response) => {
+          this.isUploading = false;
+          if (response.allOK) {
+            resolve(response.data.imageUrl);
+          } else {
+            reject(response.message);
+          }
+        },
+        error: (err) => {
+          this.isUploading = false;
+          reject('Error al subir la imagen del accesorio');
+        }
+      });
+    });
+  }
+
+  startEditConsole(index: number) {
+    this.editConsoleIndex = index;
+    this.editedConsole = { ...this.consoles[index] };
+  }
+
+  cancelEditConsole() {
+    this.editConsoleIndex = null;
+    this.editedConsole = {};
+  }
+
+  saveEditConsole(consoleItem: ProductModel) {
+    if (!this.editedConsole.price || !this.editedConsole.stock) return;
+    this.productService.updateProduct(consoleItem._id, {
+      name: this.editedConsole.name,
+      price: this.editedConsole.price,
+      stock: this.editedConsole.stock,
+      category: this.editedConsole.category,
+      description: this.editedConsole.description
+    }).subscribe({
       next: (response) => {
         if (response.allOK) {
-          this.consoles.push(response.data);
-          this.showAddConsoleForm = false;
-          this.newConsole = {
-            name: '',
-            brand: '',
-            model: '',
-            price: 0,
-            stock: 0,
-            description: '',
-            imageUrl: '',
-            selectedFile: null,
-            features: '',
-            releaseYear: undefined,
-            color: ''
-          };
-          this.router.navigate(['/productos']);
+          this.consoles[this.editConsoleIndex!] = { ...consoleItem, ...response.data };
+          this.cancelEditConsole();
+        } else {
+          this.error = response.message;
         }
+      },
+      error: (err) => {
+        this.error = 'Error al guardar los cambios de la consola.';
       }
     });
   }
 
-  addAccessory() {
-    const accessoryData = {
-      name: this.newAccessory.name,
-      category: this.newAccessory.category,
-      brand: this.newAccessory.brand,
-      price: this.newAccessory.price,
-      stock: this.newAccessory.stock,
-      description: this.newAccessory.description,
-      imageUrl: this.newAccessory.imageUrl
-    };
-
-    this.productService.createAccessory(accessoryData).subscribe({
+  deleteConsole(consoleItem: ProductModel, index: number) {
+    if (!confirm('¿Seguro que deseas eliminar esta consola?')) return;
+    this.productService.deleteConsole(consoleItem._id).subscribe({
       next: (response) => {
         if (response.allOK) {
-          this.accessories.push(response.data);
-          this.showAddAccessoryForm = false;
-          this.newAccessory = { name: '', price: 0, category: '', stock: 0, description: '', imageUrl: '', selectedFile: null, brand: '' };
-          this.router.navigate(['/productos']);
+          this.consoles.splice(index, 1);
+        } else {
+          this.error = response.message;
         }
+      },
+      error: (err) => {
+        this.error = 'Error al eliminar la consola.';
+      }
+    });
+  }
+
+  startEditAccessory(index: number) {
+    this.editAccessoryIndex = index;
+    this.editedAccessory = { ...this.accessories[index] };
+  }
+
+  cancelEditAccessory() {
+    this.editAccessoryIndex = null;
+    this.editedAccessory = {};
+  }
+
+  saveEditAccessory(accessoryItem: ProductModel) {
+    if (!this.editedAccessory.price || !this.editedAccessory.stock) return;
+    this.productService.updateProduct(accessoryItem._id, {
+      name: this.editedAccessory.name,
+      price: this.editedAccessory.price,
+      stock: this.editedAccessory.stock,
+      category: this.editedAccessory.category,
+      description: this.editedAccessory.description
+    }).subscribe({
+      next: (response) => {
+        if (response.allOK) {
+          this.accessories[this.editAccessoryIndex!] = { ...accessoryItem, ...response.data };
+          this.cancelEditAccessory();
+        } else {
+          this.error = response.message;
+        }
+      },
+      error: (err) => {
+        this.error = 'Error al guardar los cambios del accesorio.';
+      }
+    });
+  }
+
+  deleteAccessory(accessoryItem: ProductModel, index: number) {
+    if (!confirm('¿Seguro que deseas eliminar este accesorio?')) return;
+    this.productService.deleteAccessory(accessoryItem._id).subscribe({
+      next: (response) => {
+        if (response.allOK) {
+          this.accessories.splice(index, 1);
+        } else {
+          this.error = response.message;
+        }
+      },
+      error: (err) => {
+        this.error = 'Error al eliminar el accesorio.';
       }
     });
   }

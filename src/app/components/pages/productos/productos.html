@@ -21,50 +21,51 @@
     <form class="filters-form">
       <label>
         Categoría:
-        <select [(ngModel)]="selectedCategory" name="category">
+        <select [(ngModel)]="selectedCategory" name="category" (change)="applyFilters()">
           <option value="">Todas</option>
           <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
         </select>
       </label>
       <label>
         Tipo:
-        <select [(ngModel)]="selectedType" name="type">
+        <select [(ngModel)]="selectedType" name="type" (change)="applyFilters()">
           <option value="">Todos</option>
           <option *ngFor="let type of types" [value]="type">{{ type }}</option>
         </select>
       </label>
       <label>
         Precio:
-        <select [(ngModel)]="selectedPriceRange" name="priceRange">
+        <select [(ngModel)]="selectedPriceRange" name="priceRange" (change)="applyFilters()">
           <option *ngFor="let range of priceRanges" [value]="range.label">{{ range.label }}</option>
         </select>
       </label>
       <label>
-        <input type="checkbox" [(ngModel)]="showOnlyInStock" name="inStock" /> Solo en stock
+        <input type="checkbox" [(ngModel)]="showOnlyInStock" name="inStock" (change)="applyFilters()" /> Solo en stock
       </label>
+      <button type="button" class="btn btn-secondary" (click)="clearFilters()">Limpiar filtros</button>
     </form>
   </div>
 
   <!-- Listado de productos/juegos -->
   <div class="products-list-section" *ngIf="!isLoading && !error">
-    <div *ngIf="getCurrentGames().length === 0">
+    <div *ngIf="products.length === 0">
       <p>No hay productos para mostrar.</p>
     </div>
     <div class="products-grid">
-      <div *ngFor="let product of getCurrentGames()" class="product-card">
+      <div *ngFor="let product of products" class="product-card">
         <div class="product-image">
           <img *ngIf="product.imageUrl" [src]="product.imageUrl" [alt]="product.name" />
         </div>
         <div class="product-info">
           <h3>{{ product.name }}</h3>
-          <p>{{ product.descripcion }}</p>
-          <p>Precio: {{ product.precio | currency:'COP':'symbol':'1.0-0' }}</p>
+          <p>{{ product.description }}</p>
+          <p>Precio: {{ product.price | currency:'COP':'symbol':'1.0-0' }}</p>
           <p>Stock: {{ product.stock }}</p>
             <div class="game-actions">
               <button 
                 class="btn btn-primary buy-btn" 
                 [disabled]="product.stock === 0"
-                (click)="buyGame(product)">
+                (click)="buyProduct(product)">
                 {{ product.stock > 0 ? '🛒 Comprar' : 'Sin stock' }}
               </button>
             </div>

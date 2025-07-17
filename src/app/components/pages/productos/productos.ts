@@ -160,27 +160,30 @@ export class Productos implements OnInit {
   }
 
   convertProductsToProducts() {
-    const productProducts = this.allProducts.map(product => ({
-      id: product._id,
-      name: product.name,
-      type: this.getProductType(product.category) as 'consola' | 'accesorio',
-      price: product.price,
-      description: product.description,
-      imageUrl: product.imageUrl,
-      stock: product.stock,
-      brand: product.category,
-      category: product.category
-    }));
-    
+    const productProducts = this.allProducts.map(product => {
+      const type = this.getProductType(product.category || (product as any).brand || '');
+      console.log('Producto:', product, 'Tipo detectado:', type);
+      return {
+        id: product._id,
+        name: product.name,
+        type: type as 'consola' | 'accesorio',
+        price: product.price,
+        description: product.description,
+        imageUrl: product.imageUrl,
+        stock: product.stock,
+        brand: product.category || (product as any).brand,
+        category: product.category || (product as any).brand
+      };
+    });
     this.products = [...this.products, ...productProducts];
   }
 
   getProductType(category: string): string {
     if (!category) return 'accesorio';
-    if (category.toLowerCase().includes('playstation')) return 'consola';
-    if (category.toLowerCase().includes('xbox')) return 'consola';
-    if (category.toLowerCase().includes('nintendo')) return 'consola';
-    if (category.toLowerCase().includes('accesorio')) return 'accesorio';
+    const cat = category.toLowerCase();
+    if (cat.includes('playstation') || cat.includes('xbox') || cat.includes('nintendo') || cat.includes('consola') || cat.includes('consolas') || cat.includes('console')) return 'consola';
+    if (cat.includes('accesorio') || cat.includes('accesorios') || cat.includes('accessory')) return 'accesorio';
+    if (cat.includes('juego') || cat.includes('juegos') || cat.includes('game')) return 'juego';
     return 'accesorio'; // Por defecto
   }
 
@@ -309,20 +312,7 @@ export class Productos implements OnInit {
   }
 
   applyFilters() {
-    const currentGames = this.getCurrentGames();
-    const currentProducts = currentGames.map(game => ({
-      id: game._id,
-      name: game.name,
-      type: 'juego' as const,
-      price: game.precio,
-      description: game.descripcion,
-      imageUrl: game.imageUrl,
-      stock: game.stock,
-      brand: game.developer,
-      category: game.genero
-    }));
-
-    this.filteredProducts = currentProducts.filter(product => {
+    this.filteredProducts = this.products.filter(product => {
       if (this.selectedCategory && product.category !== this.selectedCategory) return false;
       if (this.selectedType && product.type !== this.selectedType) return false;
       if (this.showOnlyInStock && product.stock === 0) return false;
@@ -336,7 +326,14 @@ export class Productos implements OnInit {
     this.updatePagination();
   }
 
-  
+  verRelacionados(product: Product) {
+    // Filtra productos relacionados por categoría y tipo
+    this.selectedCategory = product.category || '';
+    this.selectedType = product.type || '';
+    this.selectedPriceRange = '';
+    this.showOnlyInStock = false;
+    this.applyFilters();
+  }
 
   clearFilters() {
     this.selectedCategory = '';

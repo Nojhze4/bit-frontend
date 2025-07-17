@@ -74,6 +74,14 @@ export class ProductService {
     return this.http.post<ApiResponse<ProductModel>>(`${this.apiUrl}/accessories`, accessory);
   }
 
+  deleteConsole(id: string) {
+    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/consoles/${id}`);
+  }
+
+  deleteAccessory(id: string) {
+    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/accessories/${id}`);
+  }
+
   // Subir imagen general
   uploadImage(file: File): Observable<UploadResponse> {
     const formData = new FormData();

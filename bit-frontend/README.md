@@ -4,6 +4,7 @@ Este proyecto es una aplicación web desarrollada con Angular para la gestión y
 
 ## Características principales
 - Visualización unificada de juegos, consolas y accesorios.
+- Filtros avanzados por tipo, categoría, precio y stock.
 - Panel de administración para agregar productos con formularios unificados y tabs.
 - Autenticación de usuarios y protección de rutas.
 - Subida de imágenes para productos.
@@ -14,12 +15,24 @@ Este proyecto es una aplicación web desarrollada con Angular para la gestión y
 - `src/app/components/pages/` — Páginas principales (productos, dashboard, login, etc.)
 - `src/app/components/shared/` — Componentes reutilizables (header, footer, carrito, etc.)
 - `src/app/services/` — Servicios para autenticación, productos, carrito, etc.
-- `src/app/guards/` — rutas para autenticación.
+- `src/app/guards/` — Guardas de rutas para autenticación.
 - `src/app/interceptors/` — Interceptores para manejo de tokens y errores.
 
+## Instalación y ejecución
+1. Instala las dependencias:
+   ```bash
+   npm install
+   ```
+2. Inicia la aplicación en modo desarrollo:
+   ```bash
+   npm start
+   ```
+3. Accede a la app en [http://localhost:4200](http://localhost:4200)
 
-## Autor
+## Notas
+- Asegúrate de tener el backend configurado y corriendo para el correcto funcionamiento de la autenticación y gestión de productos.
+- El proyecto es completamente responsive y se adapta a cualquier dispositivo.
 
-- GitHub[https://github.com/Nojhze4]
-- Linkedin[www.linkedin.com/in/jhon-ramirez-desarroladorfullstack]
+---
 
+Desarrollado para la gestión eficiente de productos, juegos, consolas y accesorios. 

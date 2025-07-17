@@ -234,6 +234,54 @@
 }
 
 /* =====================
+   Filtros visuales
+   ===================== */
+.filters-section {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  margin: 0 var(--spacing-xl) var(--spacing-xl) var(--spacing-xl);
+  box-shadow: 0 4px 15px var(--shadow-dark);
+}
+.filters-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+  align-items: center;
+  justify-content: center;
+}
+.filters-form label {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-right: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+.filters-form select {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--border-radius-md);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  transition: border-color var(--transition-normal);
+  margin-left: var(--spacing-xs);
+}
+.filters-form select:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+}
+.filters-form input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary-blue);
+  margin-left: var(--spacing-xs);
+}
+
+/* =====================
    Resultados y Grilla
    ===================== */
 .results-section {
@@ -281,6 +329,10 @@
   transition: all var(--transition-normal);
   cursor: pointer;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 350px;
 }
 .product-card:hover {
   transform: translateY(-5px);
@@ -380,10 +432,10 @@
   gap: 1rem;
 }
 .product-info {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  flex: 1;
+  justify-content: flex-start;
 }
 .product-info span {
   color: var(--text-secondary);
@@ -419,8 +471,18 @@
   gap: var(--spacing-sm);
   margin-top: 1rem;
 }
+.game-actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  padding-bottom: var(--spacing-md);
+}
 .buy-btn {
-  flex: 1;
+  display: block;
+  margin: 0 auto;
+  width: 80%;
   background: var(--success);
   color: var(--pure-white);
   border: none;

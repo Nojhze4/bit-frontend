@@ -1,4 +1,7 @@
 <div class="dashboard-container">
+  <div *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
+  </div>
   <div class="dashboard-header">
     <h1>Panel de Administración</h1>
     <button class="btn btn-secondary logout-btn" (click)="logout()">
@@ -6,246 +9,315 @@
     </button>
   </div>
 
-  <div class="add-game-section">
-    <button class="btn btn-primary" (click)="showAddForm = !showAddForm">
-      {{ showAddForm ? 'Cancelar' : 'Agregar Juego' }}
-    </button>
-    <form *ngIf="showAddForm" class="add-game-form" (ngSubmit)="addGame()">
-      <input
-        type="text"
-        placeholder="Nombre"
-        [(ngModel)]="newGame.name"
-        name="name"
-        required
-      />
-
-      <select [(ngModel)]="newGame.consola" name="consola" required>
-        <option value="">Seleccionar Consola</option>
-        <option value="PlayStation">PlayStation</option>
-        <option value="Xbox">Xbox</option>
-        <option value="Nintendo">Nintendo</option>
-      </select>
-
-      <select [(ngModel)]="newGame.genero" name="genero" required>
-        <option value="">Seleccionar Género</option>
-        <option value="Acción">Acción</option>
-        <option value="Aventura">Aventura</option>
-        <option value="RPG">RPG</option>
-        <option value="Estrategia">Estrategia</option>
-        <option value="Deportes">Deportes</option>
-        <option value="Carreras">Carreras</option>
-        <option value="Shooter">Shooter</option>
-        <option value="Plataformas">Plataformas</option>
-        <option value="Puzzle">Puzzle</option>
-        <option value="Otros">Otros</option>
-      </select>
-
-      <textarea
-        placeholder="Descripción"
-        [(ngModel)]="newGame.descripcion"
-        name="descripcion"
-        required
-      ></textarea>
-      <input
-        placeholder="Precio"
-        type="number"
-        [(ngModel)]="newGame.precio"
-        name="precio"
-        min="0"
-        required
-      />
-      <input
-        placeholder="Stock"
-        type="number"
-        [(ngModel)]="newGame.stock"
-        name="stock"
-        min="0"
-        required
-      />
-
-      <select [(ngModel)]="newGame.rating" name="rating" required>
-        <option value="">Seleccionar Rating</option>
-        <option value="E">E - Para todos</option>
-        <option value="E10+">E10+ - Para mayores de 10</option>
-        <option value="T">T - Adolescentes</option>
-        <option value="M">M - Maduro</option>
-        <option value="AO">SA - Solo adultos</option>
-      </select>
-
-      <div class="checkbox-group">
-        <label>
-          <input
-            type="checkbox"
-            [(ngModel)]="newGame.multiplayer"
-            name="multiplayer"
-          />
-          Multiplayer
-        </label>
-      </div>
-
-      <div class="image-upload-section">
-        <label for="gameImage" class="file-upload-label">
-          <span class="upload-icon">📷</span>
-          {{ selectedFile ? selectedFile.name : 'Seleccionar imagen del juego' }}
-        </label>
-        <input
-          type="file"
-          id="gameImage"
-          accept="image/*"
-          (change)="onFileSelected($event)"
-          style="display: none;"
-        />
-        <div *ngIf="selectedFile" class="selected-file">
-          <span>Archivo seleccionado: {{ selectedFile.name }}</span>
-          <button type="button" class="btn btn-small btn-secondary" (click)="selectedFile = null">
-            Cambiar
-          </button>
-        </div>
-      </div>
-
-      <button class="btn btn-success" type="submit" [disabled]="isUploading">
-        {{ isUploading ? 'Subiendo...' : 'Guardar' }}
+  <div class="add-product-unified">
+    <div class="add-product-tabs">
+      <button 
+        class="add-product-tab" 
+        [class.active]="showAddForm"
+        (click)="showAddForm = true; showAddConsoleForm = false; showAddAccessoryForm = false;">
+        Agregar Juego
       </button>
-    </form>
+      <button 
+        class="add-product-tab" 
+        [class.active]="showAddConsoleForm"
+        (click)="showAddForm = false; showAddConsoleForm = true; showAddAccessoryForm = false;">
+        Agregar Consola
+      </button>
+      <button 
+        class="add-product-tab" 
+        [class.active]="showAddAccessoryForm"
+        (click)="showAddForm = false; showAddConsoleForm = false; showAddAccessoryForm = true;">
+        Agregar Accesorio
+      </button>
+    </div>
+    <div class="add-product-form">
+      <form *ngIf="showAddForm" class="add-game-form" (ngSubmit)="addGame()">
+        <input
+          type="text"
+          placeholder="Nombre"
+          [(ngModel)]="newGame.name"
+          name="name"
+          required
+        />
+
+        <select [(ngModel)]="newGame.consola" name="consola" required>
+          <option value="">Seleccionar Consola</option>
+          <option value="PlayStation">PlayStation</option>
+          <option value="Xbox">Xbox</option>
+          <option value="Nintendo">Nintendo</option>
+        </select>
+
+        <select [(ngModel)]="newGame.genero" name="genero" required>
+          <option value="">Seleccionar Género</option>
+          <option value="Acción">Acción</option>
+          <option value="Aventura">Aventura</option>
+          <option value="RPG">RPG</option>
+          <option value="Estrategia">Estrategia</option>
+          <option value="Deportes">Deportes</option>
+          <option value="Carreras">Carreras</option>
+          <option value="Shooter">Shooter</option>
+          <option value="Plataformas">Plataformas</option>
+          <option value="Puzzle">Puzzle</option>
+          <option value="Otros">Otros</option>
+        </select>
+
+        <textarea
+          placeholder="Descripción"
+          [(ngModel)]="newGame.descripcion"
+          name="descripcion"
+          required
+        ></textarea>
+        <input
+          placeholder="Precio"
+          type="number"
+          [(ngModel)]="newGame.precio"
+          name="precio"
+          min="0"
+          required
+        />
+        <input
+          placeholder="Stock"
+          type="number"
+          [(ngModel)]="newGame.stock"
+          name="stock"
+          min="0"
+          required
+        />
+
+        <select [(ngModel)]="newGame.rating" name="rating" required>
+          <option value="">Seleccionar Rating</option>
+          <option value="E">E - Para todos</option>
+          <option value="E10+">E10+ - Para mayores de 10</option>
+          <option value="T">T - Adolescentes</option>
+          <option value="M">M - Maduro</option>
+          <option value="AO">SA - Solo adultos</option>
+        </select>
+
+        <div class="checkbox-group">
+          <label>
+            <input
+              type="checkbox"
+              [(ngModel)]="newGame.multiplayer"
+              name="multiplayer"
+            />
+            Multiplayer
+          </label>
+        </div>
+
+        <div class="image-upload-section">
+          <label for="gameImage" class="file-upload-label">
+            <span class="upload-icon">📷</span>
+            {{ selectedFile ? selectedFile.name : 'Seleccionar imagen del juego' }}
+          </label>
+          <input
+            type="file"
+            id="gameImage"
+            accept="image/*"
+            (change)="onFileSelected($event)"
+            style="display: none;"
+          />
+          <div *ngIf="selectedFile" class="selected-file">
+            <span>Archivo seleccionado: {{ selectedFile.name }}</span>
+            <button type="button" class="btn btn-small btn-secondary" (click)="selectedFile = null">
+              Cambiar
+            </button>
+          </div>
+        </div>
+
+        <button class="btn btn-success" type="submit" [disabled]="isUploading">
+          {{ isUploading ? 'Subiendo...' : 'Guardar' }}
+        </button>
+      </form>
+      <form *ngIf="showAddConsoleForm" class="add-console-form" (ngSubmit)="addConsole()" #consoleForm="ngForm">
+        <div>
+          <label for="consoleName">Nombre de la consola</label>
+          <input id="consoleName" name="name" [(ngModel)]="newConsole.name" required />
+        </div>
+        <div>
+          <label for="consoleBrand">Marca</label>
+          <select id="consoleBrand" name="brand" [(ngModel)]="newConsole.brand" required>
+            <option value="" disabled selected>Selecciona una marca</option>
+            <option value="PlayStation">PlayStation</option>
+            <option value="Xbox">Xbox</option>
+            <option value="Nintendo">Nintendo</option>
+            <option value="Otros">Otros</option>
+          </select>
+        </div>
+        <div>
+          <label for="consoleModel">Modelo</label>
+          <input id="consoleModel" name="model" [(ngModel)]="newConsole.model" required />
+        </div>
+        <div>
+          <label for="consolePrice">Precio</label>
+          <input id="consolePrice" name="price" type="number" [(ngModel)]="newConsole.price" required />
+        </div>
+        <div>
+          <label for="consoleStock">Stock</label>
+          <input id="consoleStock" name="stock" type="number" [(ngModel)]="newConsole.stock" required />
+        </div>
+        <div>
+          <label for="consoleDescription">Descripción</label>
+          <textarea id="consoleDescription" name="description" [(ngModel)]="newConsole.description" required></textarea>
+        </div>
+        <div>
+          <label for="consoleFeatures">Características (opcional)</label>
+          <input id="consoleFeatures" name="features" [(ngModel)]="newConsole.features" />
+        </div>
+        <div>
+          <label for="consoleReleaseYear">Año de lanzamiento (opcional)</label>
+          <input id="consoleReleaseYear" name="releaseYear" type="number" [(ngModel)]="newConsole.releaseYear" />
+        </div>
+        <div>
+          <label for="consoleColor">Color (opcional)</label>
+          <input id="consoleColor" name="color" [(ngModel)]="newConsole.color" />
+        </div>
+        <div class="image-upload-section">
+          <label for="consoleImage" class="file-upload-label">
+            <span class="upload-icon">📷</span>
+            {{ newConsole.selectedFile ? newConsole.selectedFile.name : 'Seleccionar imagen de la consola' }}
+          </label>
+          <input type="file" id="consoleImage" accept="image/*" (change)="onConsoleImageSelected($event)" style="display: none;" />
+          <div *ngIf="newConsole.selectedFile" class="selected-file">
+            <span>Archivo seleccionado: {{ newConsole.selectedFile.name }}</span>
+            <button type="button" class="btn btn-small btn-secondary" (click)="newConsole.selectedFile = null">Cambiar</button>
+          </div>
+        </div>
+        <button class="btn btn-success" type="submit" [disabled]="consoleForm.invalid">Guardar Consola</button>
+      </form>
+      <form *ngIf="showAddAccessoryForm" class="add-accessory-form" (ngSubmit)="addAccessory()" #accessoryForm="ngForm">
+        <div>
+          <label for="accessoryName">Nombre del accesorio</label>
+          <input id="accessoryName" name="name" [(ngModel)]="newAccessory.name" required />
+        </div>
+        <div>
+          <label for="accessoryCategory">Categoría</label>
+          <select id="accessoryCategory" name="category" [(ngModel)]="newAccessory.category" required>
+            <option value="" disabled selected>Selecciona una categoría</option>
+            <option value="Controles">Controles</option>
+            <option value="Audífonos">Audífonos</option>
+            <option value="Cargadores">Cargadores</option>
+            <option value="Almacenamiento">Almacenamiento</option>
+            <option value="Cables">Cables</option>
+            <option value="Fundas">Fundas</option>
+            <option value="Otros">Otros</option>
+          </select>
+          <div *ngIf="accessoryForm.submitted && !newAccessory.category" style="color:red;">
+            Debes seleccionar una categoría.
+          </div>
+        </div>
+        <div>
+          <label for="accessoryBrand">Marca</label>
+          <input id="accessoryBrand" name="brand" [(ngModel)]="newAccessory.brand" required />
+        </div>
+        <div>
+          <label for="accessoryPrice">Precio</label>
+          <input id="accessoryPrice" name="price" type="number" [(ngModel)]="newAccessory.price" required />
+        </div>
+        <div>
+          <label for="accessoryStock">Stock</label>
+          <input id="accessoryStock" name="stock" type="number" [(ngModel)]="newAccessory.stock" required />
+        </div>
+        <div>
+          <label for="accessoryDescription">Descripción</label>
+          <textarea id="accessoryDescription" name="description" [(ngModel)]="newAccessory.description" required></textarea>
+        </div>
+        <div>
+          <label for="accessoryImage">Imagen</label>
+          <input type="file" id="accessoryImage" accept="image/*" (change)="onAccessoryImageSelected($event)" [required]="!newAccessory.imageUrl" />
+          <div *ngIf="newAccessory.selectedFile">
+            <span>Archivo seleccionado: {{ newAccessory.selectedFile.name }}</span>
+          </div>
+          <div *ngIf="newAccessory.imageUrl">
+            <span>Imagen subida correctamente</span>
+          </div>
+        </div>
+        <button type="submit" [disabled]="accessoryForm.invalid">Agregar accesorio</button>
+      </form>
+    </div>
   </div>
-
-  <!-- Botones para agregar consolas y accesorios -->
-  <div class="add-section-buttons">
-    <button class="btn btn-primary" (click)="showAddConsoleForm = !showAddConsoleForm">
-      {{ showAddConsoleForm ? 'Cancelar' : 'Agregar Consola' }}
-    </button>
-    <button class="btn btn-primary" (click)="showAddAccessoryForm = !showAddAccessoryForm">
-      {{ showAddAccessoryForm ? 'Cancelar' : 'Agregar Accesorio' }}
-    </button>
-  </div>
-
-  <!-- Formulario para agregar consola -->
-  <form *ngIf="showAddConsoleForm" class="add-console-form" (ngSubmit)="addConsole()" #consoleForm="ngForm">
-    <div>
-      <label for="consoleName">Nombre de la consola</label>
-      <input id="consoleName" name="name" [(ngModel)]="newConsole.name" required />
-    </div>
-    <div>
-      <label for="consoleBrand">Marca</label>
-      <select id="consoleBrand" name="brand" [(ngModel)]="newConsole.brand" required>
-        <option value="" disabled selected>Selecciona una marca</option>
-        <option value="PlayStation">PlayStation</option>
-        <option value="Xbox">Xbox</option>
-        <option value="Nintendo">Nintendo</option>
-        <option value="Otros">Otros</option>
-      </select>
-    </div>
-    <div>
-      <label for="consoleModel">Modelo</label>
-      <input id="consoleModel" name="model" [(ngModel)]="newConsole.model" required />
-    </div>
-    <div>
-      <label for="consolePrice">Precio</label>
-      <input id="consolePrice" name="price" type="number" [(ngModel)]="newConsole.price" required />
-    </div>
-    <div>
-      <label for="consoleStock">Stock</label>
-      <input id="consoleStock" name="stock" type="number" [(ngModel)]="newConsole.stock" required />
-    </div>
-    <div>
-      <label for="consoleDescription">Descripción</label>
-      <textarea id="consoleDescription" name="description" [(ngModel)]="newConsole.description" required></textarea>
-    </div>
-    <div>
-      <label for="consoleFeatures">Características (opcional)</label>
-      <input id="consoleFeatures" name="features" [(ngModel)]="newConsole.features" />
-    </div>
-    <div>
-      <label for="consoleReleaseYear">Año de lanzamiento (opcional)</label>
-      <input id="consoleReleaseYear" name="releaseYear" type="number" [(ngModel)]="newConsole.releaseYear" />
-    </div>
-    <div>
-      <label for="consoleColor">Color (opcional)</label>
-      <input id="consoleColor" name="color" [(ngModel)]="newConsole.color" />
-    </div>
-    <div class="image-upload-section">
-      <label for="consoleImage" class="file-upload-label">
-        <span class="upload-icon">📷</span>
-        {{ newConsole.selectedFile ? newConsole.selectedFile.name : 'Seleccionar imagen de la consola' }}
-      </label>
-      <input type="file" id="consoleImage" accept="image/*" (change)="onConsoleImageSelected($event)" style="display: none;" />
-      <div *ngIf="newConsole.selectedFile" class="selected-file">
-        <span>Archivo seleccionado: {{ newConsole.selectedFile.name }}</span>
-        <button type="button" class="btn btn-small btn-secondary" (click)="newConsole.selectedFile = null">Cambiar</button>
-      </div>
-    </div>
-    <button class="btn btn-success" type="submit" [disabled]="consoleForm.invalid">Guardar Consola</button>
-  </form>
-
-  <!-- Formulario para agregar accesorio -->
-  <form *ngIf="showAddAccessoryForm" class="add-accessory-form" (ngSubmit)="addAccessory()" #accessoryForm="ngForm">
-    <div>
-      <label for="accessoryName">Nombre del accesorio</label>
-      <input id="accessoryName" name="name" [(ngModel)]="newAccessory.name" required />
-    </div>
-    <div>
-      <label for="accessoryCategory">Categoría</label>
-      <select id="accessoryCategory" name="category" [(ngModel)]="newAccessory.category" required>
-        <option value="" disabled selected>Selecciona una categoría</option>
-        <option value="Controles">Controles</option>
-        <option value="Audífonos">Audífonos</option>
-        <option value="Cargadores">Cargadores</option>
-        <option value="Almacenamiento">Almacenamiento</option>
-        <option value="Cables">Cables</option>
-        <option value="Fundas">Fundas</option>
-        <option value="Otros">Otros</option>
-      </select>
-      <div *ngIf="accessoryForm.submitted && !newAccessory.category" style="color:red;">
-        Debes seleccionar una categoría.
-      </div>
-    </div>
-    <div>
-      <label for="accessoryBrand">Marca</label>
-      <input id="accessoryBrand" name="brand" [(ngModel)]="newAccessory.brand" required />
-    </div>
-    <div>
-      <label for="accessoryPrice">Precio</label>
-      <input id="accessoryPrice" name="price" type="number" [(ngModel)]="newAccessory.price" required />
-    </div>
-    <div>
-      <label for="accessoryStock">Stock</label>
-      <input id="accessoryStock" name="stock" type="number" [(ngModel)]="newAccessory.stock" required />
-    </div>
-    <div>
-      <label for="accessoryDescription">Descripción</label>
-      <textarea id="accessoryDescription" name="description" [(ngModel)]="newAccessory.description" required></textarea>
-    </div>
-    <div>
-      <label for="accessoryImage">Imagen</label>
-      <input type="file" id="accessoryImage" accept="image/*" (change)="onAccessoryImageSelected($event)" [required]="!newAccessory.imageUrl" />
-      <div *ngIf="newAccessory.selectedFile">
-        <span>Archivo seleccionado: {{ newAccessory.selectedFile.name }}</span>
-      </div>
-      <div *ngIf="newAccessory.imageUrl">
-        <span>Imagen subida correctamente</span>
-      </div>
-    </div>
-    <button type="submit" [disabled]="accessoryForm.invalid">Agregar accesorio</button>
-  </form>
 
   <!-- Consolas -->
   <div class="consoles-section">
     <h2>Consolas</h2>
-    <ul>
-      <li *ngFor="let console of consoles">
-        {{ console.name }} - {{ console.price | currency:'COP':'symbol':'1.0-0' }}
-      </li>
-    </ul>
+    <table class="games-table">
+      <thead>
+        <tr>
+          <th>Imagen</th>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th>Descripción</th>
+          <th>Precio</th>
+          <th>Stock</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let console of consoles; let i = index">
+          <td>
+            <img *ngIf="console.imageUrl" [src]="console.imageUrl" [alt]="console.name" class="game-thumbnail">
+            <span *ngIf="!console.imageUrl">Sin imagen</span>
+          </td>
+          <td *ngIf="editConsoleIndex !== i">{{ console.name }}</td>
+          <td *ngIf="editConsoleIndex === i"><input [(ngModel)]="editedConsole.name" /></td>
+          <td *ngIf="editConsoleIndex !== i">{{ console.category }}</td>
+          <td *ngIf="editConsoleIndex === i"><input [(ngModel)]="editedConsole.category" /></td>
+          <td *ngIf="editConsoleIndex !== i">{{ console.description }}</td>
+          <td *ngIf="editConsoleIndex === i"><input [(ngModel)]="editedConsole.description" /></td>
+          <td *ngIf="editConsoleIndex !== i">{{ console.price | currency:'COP':'symbol':'1.0-0' }}</td>
+          <td *ngIf="editConsoleIndex === i"><input type="number" [(ngModel)]="editedConsole.price" /></td>
+          <td *ngIf="editConsoleIndex !== i">{{ console.stock }}</td>
+          <td *ngIf="editConsoleIndex === i"><input type="number" [(ngModel)]="editedConsole.stock" /></td>
+          <td>
+            <button *ngIf="editConsoleIndex !== i" class="btn btn-primary" (click)="startEditConsole(i)">Editar</button>
+            <button *ngIf="editConsoleIndex === i" class="btn btn-success" (click)="saveEditConsole(console)">Guardar</button>
+            <button *ngIf="editConsoleIndex === i" class="btn btn-secondary" (click)="cancelEditConsole()">Cancelar</button>
+            <button class="btn btn-secondary" (click)="deleteConsole(console, i)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <!-- Accesorios -->
   <div class="accessories-section">
     <h2>Accesorios</h2>
-    <ul>
-      <li *ngFor="let accessory of accessories">
-        {{ accessory.name }} - {{ accessory.category }}
-      </li>
-    </ul>
+    <table class="games-table">
+      <thead>
+        <tr>
+          <th>Imagen</th>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th>Descripción</th>
+          <th>Precio</th>
+          <th>Stock</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let accessory of accessories; let i = index">
+          <td>
+            <img *ngIf="accessory.imageUrl" [src]="accessory.imageUrl" [alt]="accessory.name" class="game-thumbnail">
+            <span *ngIf="!accessory.imageUrl">Sin imagen</span>
+          </td>
+          <td *ngIf="editAccessoryIndex !== i">{{ accessory.name }}</td>
+          <td *ngIf="editAccessoryIndex === i"><input [(ngModel)]="editedAccessory.name" /></td>
+          <td *ngIf="editAccessoryIndex !== i">{{ accessory.category }}</td>
+          <td *ngIf="editAccessoryIndex === i"><input [(ngModel)]="editedAccessory.category" /></td>
+          <td *ngIf="editAccessoryIndex !== i">{{ accessory.description }}</td>
+          <td *ngIf="editAccessoryIndex === i"><input [(ngModel)]="editedAccessory.description" /></td>
+          <td *ngIf="editAccessoryIndex !== i">{{ accessory.price | currency:'COP':'symbol':'1.0-0' }}</td>
+          <td *ngIf="editAccessoryIndex === i"><input type="number" [(ngModel)]="editedAccessory.price" /></td>
+          <td *ngIf="editAccessoryIndex !== i">{{ accessory.stock }}</td>
+          <td *ngIf="editAccessoryIndex === i"><input type="number" [(ngModel)]="editedAccessory.stock" /></td>
+          <td>
+            <button *ngIf="editAccessoryIndex !== i" class="btn btn-primary" (click)="startEditAccessory(i)">Editar</button>
+            <button *ngIf="editAccessoryIndex === i" class="btn btn-success" (click)="saveEditAccessory(accessory)">Guardar</button>
+            <button *ngIf="editAccessoryIndex === i" class="btn btn-secondary" (click)="cancelEditAccessory()">Cancelar</button>
+            <button class="btn btn-secondary" (click)="deleteAccessory(accessory, i)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <div class="dashboard-legend">
