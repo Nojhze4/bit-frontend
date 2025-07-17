@@ -1,0 +1,91 @@
+<div class="home-container">
+  
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Cargando...</p>
+  </div>
+
+  
+  <div *ngIf="error && !isLoading" class="error-container">
+    <p>{{ error }}</p>
+    <button (click)="loadHomeData()" class="btn btn-primary">Reintentar</button>
+  </div>
+
+  <!-- contenido -->
+  <div *ngIf="!isLoading && !error">
+    <section class="hero-section">
+      <div class="hero-content">
+        <h1>{{ homeData?.hero?.heroTitle || 'Bienvenido a Princegaming' }}</h1>
+        <p>{{ homeData?.hero?.heroSubtitle || 'Tu tienda de confianza para consolas, juegos y accesorios gaming' }}</p>
+      </div>
+    </section>
+
+  
+      <section *ngIf="featuredGames.length > 0" class="featured-games-section">
+      <div class="container">
+        <h2>Compramos todo tipo de consolas nuevas y usadas</h2>
+        <div class="gif-container">
+        <img src="banner.jpg" alt="Foto compra y venta de consolas">
+        </div>
+        
+
+      </div>
+    </section>
+
+   
+
+    <section class="features-section">
+      <div class="container">
+        <h2>¿Por qué elegir Princegaming?</h2>
+        <p class="features-intro">Somos tu tienda de confianza para todo lo relacionado con gaming. Con años de experiencia y pasión por los videojuegos, ofrecemos la mejor selección y servicio.</p>
+        
+        <div class="features-grid">
+          <div *ngFor="let feature of features" class="feature-card">
+            <div class="feature-icon">{{ feature.icon }}</div>
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
+          </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="additional-info">
+          <div class="info-card">
+            <div class="info-icon"><i class="bi bi-trophy-fill"></i></div>
+            <h3>Experiencia Comprobada</h3>
+            <p>Más de 5 años en el mercado del gaming, sirviendo a miles de jugadores satisfechos con productos de calidad y atención personalizada.</p>
+          </div>
+          
+          <div class="info-card">
+            <div class="info-icon"><i class="bi bi-file-earmark-lock-fill"></i></div>
+            <h3>Garantía Total</h3>
+            <p>Todos nuestros productos incluyen garantía oficial del fabricante. Si algo no funciona como esperabas, te lo cambiamos sin preguntas.</p>
+          </div>
+          
+          <div class="info-card">
+            <div class="info-icon"><i class="bi bi-chat-dots-fill"></i></div>
+            <h3>Soporte Especializado</h3>
+            <p>Nuestro equipo de expertos en gaming está disponible para asesorarte en la elección de productos y resolver cualquier duda técnica.</p>
+          </div>
+          
+          <div class="info-card">
+            <div class="info-icon"><i class="bi bi-bullseye"></i></div>
+            <h3>Productos Seleccionados</h3>
+            <p>Curiosamente seleccionamos cada producto en nuestro catálogo, asegurando que solo ofrezcamos lo mejor de las mejores marcas.</p>
+          </div>
+          
+          <div class="info-card">
+            <div class="info-icon"><i class="bi bi-truck"></i></div>
+            <h3>Envío Rápido y Seguro</h3>
+            <p>Entregamos en 24-48 horas en toda la ciudad con embalaje especial para proteger tus productos durante el transporte.</p>
+          </div>
+          
+          <div class="info-card">
+            <div class="info-icon"><i class="bi bi-cash"></i></div>
+            <h3>Precios Competitivos</h3>
+            <p>Garantizamos los mejores precios del mercado. Si encuentras un precio menor, te igualamos y te damos un 5% adicional de descuento.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

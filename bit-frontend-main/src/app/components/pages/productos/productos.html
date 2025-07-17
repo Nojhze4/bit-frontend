@@ -1,0 +1,275 @@
+<div class="products-container">
+  <div class="products-header">
+    <h1><i class="bi bi-bag"></i> Productos</h1>
+    <p class="products-subtitle">Explora nuestra amplia selección de juegos por consola</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Cargando productos...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-container">
+    <p>{{ error }}</p>
+    <button (click)="loadProducts()" class="btn btn-primary">Reintentar</button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && !error">
+    <!-- Pestañas de Consolas -->
+    <div class="tabs-container">
+      <div class="tabs">
+        <button 
+          (click)="setActiveTab('todos')" 
+          [class.active]="activeTab === 'todos'"
+          class="tab-btn"
+        >
+          <i class="bi bi-controller"></i> Todos los Juegos
+        </button>
+        <button 
+          (click)="setActiveTab('playstation')" 
+          [class.active]="activeTab === 'playstation'"
+          class="tab-btn"
+        >
+          <i class="bi bi-playstation"></i> PlayStation
+        </button>
+        <button 
+          (click)="setActiveTab('xbox')" 
+          [class.active]="activeTab === 'xbox'"
+          class="tab-btn"
+        >
+          <i class="bi bi-xbox"></i> Xbox
+        </button>
+        <button 
+          (click)="setActiveTab('nintendo')" 
+          [class.active]="activeTab === 'nintendo'"
+          class="tab-btn"
+        >
+          <i class="bi bi-nintendo-switch"></i> Nintendo
+        </button>
+      </div>
+    </div>
+
+    <!-- Información de la consola seleccionada -->
+    <div class="console-info" *ngIf="activeTab !== 'todos'">
+      <div class="console-header">
+        <h2>{{ getConsoleIcon(activeTab) }} {{ getConsoleName(activeTab) }}</h2>
+        <p>Descubre los mejores juegos para {{ getConsoleName(activeTab) }}</p>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-section">
+      <div class="filters-header">
+        <h3><i class="bi bi-funnel"></i> Filtros</h3>
+        <button (click)="clearFilters()" class="btn btn-secondary btn-sm">Limpiar Filtros</button>
+      </div>
+      
+      <div class="filters-grid">
+        <!-- Filtro por Categoría -->
+        <div class="filter-group">
+          <label>Género:</label>
+          <div class="filter-buttons">
+            <button 
+              *ngFor="let category of categories" 
+              (click)="filterByCategory(category)"
+              [class.active]="selectedCategory === category"
+              class="filter-btn"
+              [style.background-color]="selectedCategory === category ? getCategoryColor(category) : 'transparent'"
+              [style.color]="selectedCategory === category ? 'white' : 'var(--text-primary)'"
+            >
+              {{ category }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtro por Precio -->
+        <div class="filter-group">
+          <label>Rango de Precio:</label>
+          <select [(ngModel)]="selectedPriceRange" (change)="filterByPriceRange()" class="filter-select">
+            <option value="">Todos los precios</option>
+            <option *ngFor="let range of priceRanges" [value]="range.label">{{ range.label }}</option>
+          </select>
+        </div>
+
+        <!-- Filtros Adicionales -->
+        <div class="filter-group">
+          <label>Opciones:</label>
+          <div class="filter-options">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="showOnlyInStock" (change)="toggleInStock()">
+              <span>Solo en stock</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultados -->
+    <div class="results-section">
+      <div class="results-header">
+        <h3><i class="bi bi-clipboard"></i> Resultados ({{ filteredProducts.length }} productos)</h3>
+        <div class="console-badge" *ngIf="activeTab !== 'todos'">
+          <span class="badge console-badge" [style.background-color]="getConsoleColor(activeTab)">
+            {{ getConsoleName(activeTab) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredProducts.length === 0" class="empty-container">
+        <div class="empty-icon"><i class="bi bi-controller"></i></div>
+        <h3>No se encontraron juegos</h3>
+        <p *ngIf="activeTab === 'todos'">Intenta ajustar los filtros para encontrar más juegos</p>
+        <p *ngIf="activeTab !== 'todos'">No hay juegos disponibles para {{ getConsoleName(activeTab) }} con los filtros actuales</p>
+        <button (click)="clearFilters()" class="btn btn-primary">Ver Todos los Juegos</button>
+      </div>
+
+      <!-- Products Grid -->
+      <div *ngIf="filteredProducts.length > 0" class="products-grid">
+        <div *ngFor="let product of paginatedProducts" class="product-card">
+          <div class="product-image">
+            <div class="product-image-placeholder" *ngIf="!product.imageUrl">
+              <span class="placeholder-icon">
+                🎮
+              </span>
+            </div>
+            <img *ngIf="product.imageUrl" [src]="product.imageUrl" [alt]="product.name">
+            <div class="product-overlay">
+              <button class="btn btn-primary btn-sm" (click)="toggleProductDetails(product.id); $event.stopPropagation()">
+                {{ isProductExpanded(product.id) ? 'Ocultar' : 'Ver' }} Detalles
+              </button>
+            </div>
+          </div>
+          
+          <div class="product-content">
+            <h3 class="product-title">{{ product.name }}</h3>
+            
+            <div class="product-badges">
+              <span class="badge type-badge" [style.background-color]="getTypeColor(product.type)">
+                Juego
+              </span>
+              <span *ngIf="product.category" class="badge category-badge" [style.background-color]="getCategoryColor(product.category)">
+                {{ product.category }}
+              </span>
+              <span *ngIf="activeTab !== 'todos'" class="badge console-badge" [style.background-color]="getConsoleColor(activeTab)">
+                {{ getConsoleName(activeTab) }}
+              </span>
+            </div>
+            
+            <p class="product-description">{{ product.description }}</p>
+            
+            <div class="product-meta">
+              <div class="product-info">
+                <span *ngIf="product.brand" class="brand">🏢 {{ product.brand }}</span>
+              </div>
+              
+              <div class="product-price-stock">
+                <span class="price">{{ product.price | currency:'COP':'symbol':'1.0-0' }}</span>
+                <span class="stock" [class.in-stock]="product.stock > 0" [class.out-of-stock]="product.stock === 0">
+                  {{ product.stock > 0 ? 'En stock' : 'Sin stock' }}
+                </span>
+              </div>
+            </div>
+            
+            <div class="product-actions">
+              <button 
+                class="btn btn-primary buy-btn" 
+                [disabled]="product.stock === 0"
+                (click)="buyProduct(product)">
+                {{ product.stock > 0 ? ' Comprar' : 'Sin stock' }}
+              </button>
+              <button 
+                class="btn btn-secondary details-btn" 
+                (click)="toggleProductDetails(product.id)">
+                {{ isProductExpanded(product.id) ? 'Ocultar Detalles' : 'Ver Detalles' }}
+              </button>
+            </div>
+
+            <!-- Menú desplegable con detalles -->
+            <div class="product-details-dropdown" [class.expanded]="isProductExpanded(product.id)">
+              <div class="details-content">
+                <div class="details-header">
+                  <h4>📋 Especificaciones Técnicas</h4>
+                  <button class="close-details" (click)="toggleProductDetails(product.id); $event.stopPropagation()">
+                    <i class="bi bi-x-circle"></i>
+                  </button>
+                </div>
+                
+                <div class="details-body">
+                  <!-- Especificaciones específicas por tipo -->
+                  <div *ngIf="product.type === 'juego'" class="specs-section">
+                    <div class="spec-item">
+                      <span class="spec-label"><i class="bi bi-dpad-fill"></i> Género:</span>
+                      <span class="spec-value">{{ product.category }}</span>
+                    </div>
+                    <div class="spec-item">
+                      <span class="spec-label"><i class="bi bi-building"></i> Desarrollador:</span>
+                      <span class="spec-value">{{ product.brand }}</span>
+                    </div>
+                    <div class="spec-item">
+                      <span class="spec-label"><i class="bi bi-controller"></i> Plataforma:</span>
+                      <span class="spec-value">{{ getConsoleName(activeTab) }}</span>
+                    </div>
+                    <div class="spec-item">
+                      <span class="spec-label"><i class="bi bi-calendar"></i> Lanzamiento:</span>
+                      <span class="spec-value">2023-2024</span>
+                    </div>
+                    <div class="spec-item">
+                      <span class="spec-label"><i class="bi bi-person-fill"></i> Jugadores:</span>
+                      <span class="spec-value">1-4 jugadores</span>
+                    </div>
+                    <div class="spec-item">
+                      <span class="spec-label"><i class="bi bi-globe"></i> Idioma:</span>
+                      <span class="spec-value">Español, Inglés</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div *ngIf="filteredProducts.length > 0 && totalPages > 1" class="pagination-container">
+        <div class="pagination-info">
+          <span>Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredProducts.length) }} de {{ filteredProducts.length }} productos</span>
+        </div>
+        
+        <div class="pagination-controls">
+          <!-- Botón Anterior -->
+          <button 
+            class="pagination-btn" 
+            [disabled]="currentPage === 1"
+            (click)="previousPage()"
+            [class.disabled]="currentPage === 1">
+            ← Anterior
+          </button>
+          
+          <!-- Números de página -->
+          <div class="page-numbers">
+            <button 
+              *ngFor="let page of getPageNumbers()" 
+              class="page-btn"
+              [class.active]="page === currentPage"
+              (click)="goToPage(page)">
+              {{ page }}
+            </button>
+          </div>
+          
+          <!-- Botón Siguiente -->
+          <button 
+            class="pagination-btn" 
+            [disabled]="currentPage === totalPages"
+            (click)="nextPage()"
+            [class.disabled]="currentPage === totalPages">
+            Siguiente →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -5,6 +5,7 @@ import { Productos } from './components/pages/productos/productos';
 import { LoginComponent } from './components/pages/login/login';
 import { PageNotFound } from './components/pages/page-not-found/page-not-found';
 import { Dashboard } from './components/pages/dashboard/dashboard';
+import { Panel } from './services/service/panel/panel';
 import { AuthGuard } from './guards/auth.guard';
 import { Cart } from './components/pages/cart/cart';
 

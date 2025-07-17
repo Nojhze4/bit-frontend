@@ -4,11 +4,12 @@ import { CurrencyPipe, NgIf, NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '../../../services/cart.service';
 import { GamesService, Game } from '../../../services/games.service';
+import { ProductService, ProductModel } from '../../../services/product.service';
 
 interface Product {
   id: string;
   name: string;
-  type: 'juego';
+  type: 'juego' | 'consola' | 'accesorio';
   price: number;
   description: string;
   imageUrl?: string;
@@ -33,6 +34,7 @@ export class Productos implements OnInit {
   xboxGames: Game[] = [];
   nintendoGames: Game[] = [];
   allGames: Game[] = [];
+  allProducts: ProductModel[] = [];
   
   selectedCategory: string = '';
   selectedType: string = '';
@@ -40,6 +42,7 @@ export class Productos implements OnInit {
   showOnlyInStock: boolean = false;
   
   activeTab: 'todos' | 'playstation' | 'xbox' | 'nintendo' = 'todos';
+  activeSection: 'juegos' | 'consolas' | 'accesorios' = 'juegos';
   
   expandedProductId: string | null = null;
   
@@ -50,8 +53,8 @@ export class Productos implements OnInit {
   
   Math = Math;
   
-  categories = ['Acción', 'Aventura', 'RPG', 'Deportes', 'Estrategia', 'Simulación'];
-  types = ['juego'];
+  categories = ['Acción', 'Aventura', 'RPG', 'Deportes', 'Estrategia', 'Simulación', 'Consolas', 'Accesorios'];
+  types = ['juego', 'consola', 'accesorio'];
   priceRanges = [
     { label: 'Todos los precios', min: 0, max: 999999999 },
     { label: 'Menos de $200.000', min: 0, max: 200000 },
@@ -62,7 +65,8 @@ export class Productos implements OnInit {
 
   constructor(
     private cartService: CartService,
-    private gamesService: GamesService
+    private gamesService: GamesService,
+    private productService: ProductService
   ) {}
 
   ngOnInit() {
@@ -73,21 +77,38 @@ export class Productos implements OnInit {
     this.isLoading = true;
     this.error = null;
 
+    // Cargar juegos
     this.gamesService.getAllGames().subscribe({
       next: (response) => {
         if (response.allOK) {
           this.allGames = response.data;
           this.convertGamesToProducts();
-          this.applyFilters();
         } else {
           this.error = response.message || 'Error al cargar los juegos';
         }
-        this.isLoading = false;
       },
       error: (err) => {
         console.error('Error loading games:', err);
         this.error = 'Error al conectar con el servidor';
+      }
+    });
+
+    // Cargar productos
+    this.productService.getAllProducts().subscribe({
+      next: (response) => {
+        if (response.allOK) {
+          this.allProducts = response.data;
+          this.convertProductsToProducts();
+        } else {
+          console.error('Error loading products:', response.message);
+        }
         this.isLoading = false;
+        this.applyFilters();
+      },
+      error: (err) => {
+        console.error('Error loading products:', err);
+        this.isLoading = false;
+        this.applyFilters();
       }
     });
 
@@ -135,6 +156,30 @@ export class Productos implements OnInit {
       brand: game.developer,
       category: game.genero
     }));
+  }
+
+  convertProductsToProducts() {
+    const productProducts = this.allProducts.map(product => ({
+      id: product._id,
+      name: product.name,
+      type: this.getProductType(product.category) as 'consola' | 'accesorio',
+      price: product.price,
+      description: product.description,
+      imageUrl: product.imageUrl,
+      stock: product.stock,
+      brand: product.category,
+      category: product.category
+    }));
+    
+    this.products = [...this.products, ...productProducts];
+  }
+
+  getProductType(category: string): string {
+    if (category.toLowerCase().includes('playstation')) return 'consola';
+    if (category.toLowerCase().includes('xbox')) return 'consola';
+    if (category.toLowerCase().includes('nintendo')) return 'consola';
+    if (category.toLowerCase().includes('accesorio')) return 'accesorio';
+    return 'accesorio'; // Por defecto
   }
 
   getCurrentGames(): Game[] {
@@ -303,6 +348,23 @@ export class Productos implements OnInit {
     this.applyFilters();
   }
 
+  setActiveSection(section: 'juegos' | 'consolas' | 'accesorios') {
+    this.activeSection = section;
+  }
+
+  getSectionProducts(): Product[] {
+    if (this.activeSection === 'juegos') {
+      return this.products.filter(p => p.type === 'juego');
+    } else if (this.activeSection === 'consolas') {
+      // Aquí puedes filtrar por tipo consola si tienes esa info
+      return this.products.filter(p => p.category === 'Consolas');
+    } else if (this.activeSection === 'accesorios') {
+      // Aquí puedes filtrar por tipo accesorio si tienes esa info
+      return this.products.filter(p => p.category === 'Accesorios');
+    }
+    return this.products;
+  }
+
   getCategoryColor(category: string): string {
     const colors: { [key: string]: string } = {
       'Acción': '#ff6b35',
@@ -310,14 +372,18 @@ export class Productos implements OnInit {
       'RPG': '#45b7d1',
       'Deportes': '#3498db',
       'Estrategia': '#9b59b6',
-      'Simulación': '#e74c3c'
+      'Simulación': '#e74c3c',
+      'Consolas': '#007bff',
+      'Accesorios': '#6c757d'
     };
     return colors[category] || '#6c757d';
   }
 
   getTypeColor(type: string): string {
     const colors: { [key: string]: string } = {
-      'juego': '#28a745'
+      'juego': '#28a745',
+      'consola': '#007bff',
+      'accesorio': '#6c757d'
     };
     return colors[type] || '#6c757d';
   }
@@ -331,18 +397,15 @@ export class Productos implements OnInit {
   }
 
   buyProduct(product: Product) {
-    if (product.stock > 0) {
-      this.cartService.addToCart({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        type: product.type,
-        imageUrl: product.imageUrl,
-        brand: product.brand
-      });
-      
-      this.showSuccessMessage(`¡${product.name} agregado al carrito!`);
-    }
+    this.cartService.addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      type: product.type, // Now supports 'juego', 'consola', 'accesorio'
+      imageUrl: product.imageUrl,
+      brand: product.brand
+    });
+    this.showSuccessMessage('Producto añadido al carrito');
   }
 
   private showSuccessMessage(message: string) {

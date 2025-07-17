@@ -1,0 +1,307 @@
+<div class="games-container">
+  <div class="games-header">
+    <div class="header-content">
+      <div class="header-text">
+        <h1>🎮 Juegos Disponibles</h1>
+        <p class="games-subtitle">Descubre los mejores títulos para todas las plataformas</p>
+      </div>
+      <button class="hamburger-btn" (click)="toggleFilters()" [class.active]="filtersOpen">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div class="games-tabs">
+      <button class="tab-btn" [class.active]="showSection === 'all'" (click)="showSection = 'all'">Todos</button>
+      <button class="tab-btn" [class.active]="showSection === 'playstation'" (click)="showSection = 'playstation'">PlayStation</button>
+      <button class="tab-btn" [class.active]="showSection === 'xbox'" (click)="showSection = 'xbox'">Xbox</button>
+      <button class="tab-btn" [class.active]="showSection === 'nintendo'" (click)="showSection = 'nintendo'">Nintendo</button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Cargando juegos...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-container">
+    <p>{{ error }}</p>
+    <button (click)="loadGames()" class="btn btn-primary">Reintentar</button>
+  </div>
+
+  <!-- Content: Todos -->
+  <div *ngIf="!isLoading && !error && showSection === 'all'" class="content-wrapper">
+    <!-- Filtros - Menú Hamburguesa -->
+    <div class="filters-sidebar" [class.open]="filtersOpen">
+      <div class="filters-header">
+        <h3>🔍 Filtros</h3>
+        <button (click)="toggleFilters()" class="close-btn">×</button>
+      </div>
+      
+      <div class="filters-content">
+        <!-- Filtro por Consola -->
+        <div class="filter-group">
+          <label>Consola:</label>
+          <div class="filter-buttons">
+            <button 
+              *ngFor="let console of consoles" 
+              (click)="filterByConsole(console)"
+              [class.active]="selectedConsole === console"
+              class="filter-btn"
+              [style.background-color]="selectedConsole === console ? getConsoleColor(console) : 'transparent'"
+              [style.color]="selectedConsole === console ? 'white' : 'var(--text-primary)'"
+            >
+              {{ console }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtro por Género -->
+        <div class="filter-group">
+          <label>Género:</label>
+          <div class="filter-buttons">
+            <button 
+              *ngFor="let genre of genres" 
+              (click)="filterByGenre(genre)"
+              [class.active]="selectedGenre === genre"
+              class="filter-btn"
+              [style.background-color]="selectedGenre === genre ? getGenreColor(genre) : 'transparent'"
+              [style.color]="selectedGenre === genre ? 'white' : 'var(--text-primary)'"
+            >
+              {{ genre }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtro por Precio -->
+        <div class="filter-group">
+          <label>Rango de Precio:</label>
+          <select [(ngModel)]="selectedPriceRange" (change)="filterByPriceRange()" class="filter-select">
+            <option value="">Todos los precios</option>
+            <option *ngFor="let range of priceRanges" [value]="range.label">{{ range.label }}</option>
+          </select>
+        </div>
+
+        <!-- Filtros Adicionales -->
+        <div class="filter-group">
+          <label>Opciones:</label>
+          <div class="filter-options">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="showOnlyInStock" (change)="toggleInStock()">
+              <span>Solo en stock</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="showOnlyMultiplayer" (change)="toggleMultiplayer()">
+              <span>Solo multiplayer</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Botón Limpiar Filtros -->
+        <div class="filter-actions">
+          <button (click)="clearFilters()" class="btn btn-secondary btn-full">Limpiar Filtros</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlay para cerrar filtros en móvil -->
+    <div class="filters-overlay" [class.active]="filtersOpen" (click)="toggleFilters()"></div>
+
+    <!-- Resultados -->
+    <div class="results-section">
+      <div class="results-header">
+        <h3>📋 Resultados ({{ games.length }} juegos)</h3>
+        <button class="mobile-filters-btn" (click)="toggleFilters()">
+          🔍 Filtros
+        </button>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="games.length === 0" class="empty-container">
+        <div class="empty-icon">🎮</div>
+        <h3>No se encontraron juegos</h3>
+        <p>Intenta ajustar los filtros para encontrar más juegos</p>
+        <button (click)="clearFilters()" class="btn btn-primary">Ver Todos los Juegos</button>
+      </div>
+
+      <!-- Games Grid -->
+      <div *ngIf="games.length > 0" class="games-grid">
+        <div *ngFor="let game of games" class="game-card">
+          <div class="game-image">
+            <div class="game-image-placeholder" *ngIf="!game.imageUrl">
+              <span class="placeholder-icon">🎮</span>
+            </div>
+            <img *ngIf="game.imageUrl" [src]="game.imageUrl" [alt]="game.name">
+            <div class="game-overlay">
+              <button class="btn btn-primary btn-sm">Ver Detalles</button>
+            </div>
+          </div>
+          
+          <div class="game-content">
+            <h3 class="game-title">{{ game.name }}</h3>
+            
+            <div class="game-badges">
+              <span class="badge genre-badge" [style.background-color]="getGenreColor(game.genero)">
+                {{ game.genero }}
+              </span>
+              <span *ngIf="game.multiplayer" class="badge multiplayer-badge">
+                🎯 Multiplayer
+              </span>
+            </div>
+            
+            <p class="game-description">{{ game.descripcion }}</p>
+            
+            <div class="game-meta">
+              <div class="game-info">
+                <span class="developer">👨‍💻 {{ game.developer }}</span>
+                <span *ngIf="game.releaseYear" class="year">📅 {{ game.releaseYear }}</span>
+                <span class="rating">📊 {{ game.rating }}</span>
+              </div>
+              
+              <div class="game-price-stock">
+                <span class="price">{{ game.precio | currency:'COP':'symbol':'1.0-0' }}</span>
+                <span class="stock" [class.in-stock]="game.stock > 0" [class.out-of-stock]="game.stock === 0">
+                  {{ game.stock > 0 ? '📦 En stock' : '❌ Sin stock' }}
+                </span>
+              </div>
+            </div>
+            
+            <div class="game-actions">
+              <button 
+                class="btn btn-primary buy-btn" 
+                [disabled]="game.stock === 0"
+                (click)="buyGame(game)">
+                {{ game.stock > 0 ? '🛒 Comprar' : 'Sin stock' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content: PlayStation -->
+  <div *ngIf="!isLoading && !error && showSection === 'playstation'" class="content-wrapper">
+    <h2>Juegos de PlayStation</h2>
+    <div class="games-grid">
+      <div *ngFor="let game of playstationGames" class="game-card">
+        <div class="game-image">
+          <div class="game-image-placeholder" *ngIf="!game.imageUrl">
+            <span class="placeholder-icon">🎮</span>
+          </div>
+          <img *ngIf="game.imageUrl" [src]="game.imageUrl" [alt]="game.name">
+        </div>
+        <div class="game-content">
+          <h3 class="game-title">{{ game.name }}</h3>
+          <div class="game-badges">
+            <span class="badge genre-badge" [style.background-color]="getGenreColor(game.genero)">{{ game.genero }}</span>
+            <span *ngIf="game.multiplayer" class="badge multiplayer-badge">🎯 Multiplayer</span>
+          </div>
+          <p class="game-description">{{ game.descripcion }}</p>
+          <div class="game-meta">
+            <div class="game-info">
+              <span class="developer">👨‍💻 {{ game.developer }}</span>
+              <span *ngIf="game.releaseYear" class="year">📅 {{ game.releaseYear }}</span>
+              <span class="rating">📊 {{ game.rating }}</span>
+            </div>
+            <div class="game-price-stock">
+              <span class="price">{{ game.precio | currency:'COP':'symbol':'1.0-0' }}</span>
+              <span class="stock" [class.in-stock]="game.stock > 0" [class.out-of-stock]="game.stock === 0">
+                {{ game.stock > 0 ? '📦 En stock' : '❌ Sin stock' }}
+              </span>
+            </div>
+          </div>
+          <div class="game-actions">
+            <button class="btn btn-primary buy-btn" [disabled]="game.stock === 0" (click)="buyGame(game)">
+              {{ game.stock > 0 ? '🛒 Comprar' : 'Sin stock' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content: Xbox -->
+  <div *ngIf="!isLoading && !error && showSection === 'xbox'" class="content-wrapper">
+    <h2>Juegos de Xbox</h2>
+    <div class="games-grid">
+      <div *ngFor="let game of xboxGames" class="game-card">
+        <div class="game-image">
+          <div class="game-image-placeholder" *ngIf="!game.imageUrl">
+            <span class="placeholder-icon">🎮</span>
+          </div>
+          <img *ngIf="game.imageUrl" [src]="game.imageUrl" [alt]="game.name">
+        </div>
+        <div class="game-content">
+          <h3 class="game-title">{{ game.name }}</h3>
+          <div class="game-badges">
+            <span class="badge genre-badge" [style.background-color]="getGenreColor(game.genero)">{{ game.genero }}</span>
+            <span *ngIf="game.multiplayer" class="badge multiplayer-badge">🎯 Multiplayer</span>
+          </div>
+          <p class="game-description">{{ game.descripcion }}</p>
+          <div class="game-meta">
+            <div class="game-info">
+              <span class="developer">👨‍💻 {{ game.developer }}</span>
+              <span *ngIf="game.releaseYear" class="year">📅 {{ game.releaseYear }}</span>
+              <span class="rating">📊 {{ game.rating }}</span>
+            </div>
+            <div class="game-price-stock">
+              <span class="price">{{ game.precio | currency:'COP':'symbol':'1.0-0' }}</span>
+              <span class="stock" [class.in-stock]="game.stock > 0" [class.out-of-stock]="game.stock === 0">
+                {{ game.stock > 0 ? '📦 En stock' : '❌ Sin stock' }}
+              </span>
+            </div>
+          </div>
+          <div class="game-actions">
+            <button class="btn btn-primary buy-btn" [disabled]="game.stock === 0" (click)="buyGame(game)">
+              {{ game.stock > 0 ? '🛒 Comprar' : 'Sin stock' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content: Nintendo -->
+  <div *ngIf="!isLoading && !error && showSection === 'nintendo'" class="content-wrapper">
+    <h2>Juegos de Nintendo</h2>
+    <div class="games-grid">
+      <div *ngFor="let game of nintendoGames" class="game-card">
+        <div class="game-image">
+          <div class="game-image-placeholder" *ngIf="!game.imageUrl">
+            <span class="placeholder-icon">🎮</span>
+          </div>
+          <img *ngIf="game.imageUrl" [src]="game.imageUrl" [alt]="game.name">
+        </div>
+        <div class="game-content">
+          <h3 class="game-title">{{ game.name }}</h3>
+          <div class="game-badges">
+            <span class="badge genre-badge" [style.background-color]="getGenreColor(game.genero)">{{ game.genero }}</span>
+            <span *ngIf="game.multiplayer" class="badge multiplayer-badge">🎯 Multiplayer</span>
+          </div>
+          <p class="game-description">{{ game.descripcion }}</p>
+          <div class="game-meta">
+            <div class="game-info">
+              <span class="developer">👨‍💻 {{ game.developer }}</span>
+              <span *ngIf="game.releaseYear" class="year">📅 {{ game.releaseYear }}</span>
+              <span class="rating">📊 {{ game.rating }}</span>
+            </div>
+            <div class="game-price-stock">
+              <span class="price">{{ game.precio | currency:'COP':'symbol':'1.0-0' }}</span>
+              <span class="stock" [class.in-stock]="game.stock > 0" [class.out-of-stock]="game.stock === 0">
+                {{ game.stock > 0 ? '📦 En stock' : '❌ Sin stock' }}
+              </span>
+            </div>
+          </div>
+          <div class="game-actions">
+            <button class="btn btn-primary buy-btn" [disabled]="game.stock === 0" (click)="buyGame(game)">
+              {{ game.stock > 0 ? '🛒 Comprar' : 'Sin stock' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

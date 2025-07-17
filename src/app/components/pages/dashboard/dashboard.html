@@ -83,8 +83,39 @@
         </label>
       </div>
 
-      <button class="btn btn-success" type="submit">Guardar</button>
+      <button class="btn btn-success" type="submit">
+        Guardar
+      </button>
     </form>
+  </div>
+
+  <!-- Tabla de productos -->
+  <div class="products-table-section" *ngIf="products.length > 0">
+    <h2>Productos</h2>
+    <table class="products-table">
+      <thead>
+        <tr>
+          <th>Imagen</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Categoría</th>
+          <th>Precio</th>
+          <th>Stock</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of products">
+          <td>
+            <img *ngIf="product.imageUrl" [src]="product.imageUrl" width="50" />
+          </td>
+          <td>{{ product.name }}</td>
+          <td>{{ product.description }}</td>
+          <td>{{ product.category }}</td>
+          <td>{{ product.price | currency:'COP':'symbol':'1.0-0' }}</td>
+          <td>{{ product.stock }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <div class="dashboard-legend">
@@ -128,6 +159,7 @@
     <table class="games-table">
       <thead>
         <tr>
+          <th>Imagen</th>
           <th>Nombre</th>
           <th>Género</th>
           <th>Precio</th>
@@ -137,6 +169,26 @@
       </thead>
       <tbody>
         <tr *ngFor="let game of games; let i = index">
+          <td class="game-image-cell">
+            <div class="game-image-container">
+              <div *ngIf="!game.imageUrl" class="no-image-placeholder">
+                <span>Sin imagen</span>
+              </div>
+              <img *ngIf="game.imageUrl" [src]="game.imageUrl" [alt]="game.name" class="game-thumbnail">
+              <div class="image-upload-overlay">
+                <label [for]="'gameImage' + i" class="upload-btn">
+                  <span>📷</span>
+                </label>
+                <input
+                  type="file"
+                  [id]="'gameImage' + i"
+                  accept="image/*"
+                  (change)="onGameImageSelected($event, game)"
+                  style="display: none;"
+                />
+              </div>
+            </div>
+          </td>
           <td>{{ game.name }}</td>
           <td>{{ game.genero }}</td>
           <td *ngIf="editIndex !== i">

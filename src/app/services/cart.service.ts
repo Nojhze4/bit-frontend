@@ -6,7 +6,7 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
-  type: 'juego';
+  type: 'juego' | 'consola' | 'accesorio';
   imageUrl?: string;
   brand?: string;
 }

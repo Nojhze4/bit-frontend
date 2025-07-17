@@ -1,1 +1,199 @@
-<p>panel works!</p>
+<div class="panel-container">
+  <div class="panel-header">
+    <h1>Panel de Administración de Productos</h1>
+    <button class="btn btn-secondary logout-btn" (click)="logout()">
+      Cerrar sesión
+    </button>
+  </div>
+
+  <div class="add-product-section">
+    <button class="btn btn-primary" (click)="showAddForm = !showAddForm">
+      {{ showAddForm ? 'Cancelar' : 'Agregar Producto' }}
+    </button>
+    <form *ngIf="showAddForm" class="add-product-form" (ngSubmit)="addProduct()">
+      <input
+        type="text"
+        placeholder="Nombre del producto"
+        [(ngModel)]="newProduct.name"
+        name="name"
+        required
+      />
+
+      <select [(ngModel)]="newProduct.category" name="category" required>
+        <option value="">Seleccionar Categoría</option>
+        <option value="Consolas">Consolas</option>
+        <option value="Accesorios">Accesorios</option>
+        <option value="Videojuegos">Videojuegos</option>
+        <option value="Merchandising">Merchandising</option>
+        <option value="Hardware">Hardware</option>
+        <option value="Otros">Otros</option>
+      </select>
+
+      <textarea
+        placeholder="Descripción del producto"
+        [(ngModel)]="newProduct.description"
+        name="description"
+        required
+      ></textarea>
+
+      <input
+        placeholder="Precio"
+        type="number"
+        [(ngModel)]="newProduct.price"
+        name="price"
+        min="0"
+        required
+      />
+
+      <input
+        placeholder="Stock"
+        type="number"
+        [(ngModel)]="newProduct.stock"
+        name="stock"
+        min="0"
+        required
+      />
+
+      <div class="image-upload-section">
+        <label for="productImage" class="file-upload-label">
+          <span class="upload-icon">📷</span>
+          {{ selectedFile ? selectedFile.name : 'Seleccionar imagen del producto' }}
+        </label>
+        <input
+          type="file"
+          id="productImage"
+          accept="image/*"
+          (change)="onFileSelected($event)"
+          style="display: none;"
+        />
+        <div *ngIf="selectedFile" class="selected-file">
+          <span>Archivo seleccionado: {{ selectedFile.name }}</span>
+          <button type="button" class="btn btn-small btn-secondary" (click)="selectedFile = null">
+            Cambiar
+          </button>
+        </div>
+      </div>
+
+      <button class="btn btn-success" type="submit" [disabled]="isUploading">
+        {{ isUploading ? 'Subiendo...' : 'Guardar Producto' }}
+      </button>
+    </form>
+  </div>
+
+  <div class="panel-legend">
+    <div class="legend-item">
+      <span class="legend-color stock-low"></span>
+      <span>Stock Bajo (≤5)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color stock-medium"></span>
+      <span>Stock Medio (6-15)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color stock-high"></span>
+      <span>Stock Alto (>15)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color price-low"></span>
+      <span>Precio Bajo (≤$50k)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color price-medium"></span>
+      <span>Precio Medio ($51k-$100k)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color price-high"></span>
+      <span>Precio Alto (>$100k)</span>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Cargando productos...</p>
+  </div>
+
+  <div *ngIf="error && !isLoading" class="error-container">
+    <p>{{ error }}</p>
+    <button (click)="loadProducts()" class="btn btn-primary">Reintentar</button>
+  </div>
+
+  <div *ngIf="!isLoading && !error">
+    <table class="products-table">
+      <thead>
+        <tr>
+          <th>Imagen</th>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th>Precio</th>
+          <th>Stock</th>
+
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of products; let i = index">
+          <td class="product-image-cell">
+            <div class="product-image-container">
+              <div *ngIf="!product.imageUrl" class="no-image-placeholder">
+                <span>Sin imagen</span>
+              </div>
+              <img *ngIf="product.imageUrl" [src]="product.imageUrl" [alt]="product.name" class="product-thumbnail">
+              <div class="image-upload-overlay">
+                <label [for]="'productImage' + i" class="upload-btn">
+                  <span>📷</span>
+                </label>
+                <input
+                  type="file"
+                  [id]="'productImage' + i"
+                  accept="image/*"
+                  (change)="onProductImageSelected($event, product)"
+                  style="display: none;"
+                />
+              </div>
+            </div>
+          </td>
+          <td>{{ product.name }}</td>
+          <td>{{ product.category }}</td>
+          <td *ngIf="editIndex !== i">
+            <div class="price-indicator" [ngClass]="getPriceClass(product.price)">
+              {{ product.price | currency:'COP':'symbol':'1.0-0' }}
+            </div>
+          </td>
+          <td *ngIf="editIndex === i">
+            <input type="number" [(ngModel)]="editedProduct.price" min="0" />
+          </td>
+          <td *ngIf="editIndex !== i" [ngClass]="getStockClass(product.stock)">{{ product.stock }}</td>
+          <td *ngIf="editIndex === i">
+            <input type="number" [(ngModel)]="editedProduct.stock" min="0" />
+          </td>
+          <td>
+            <button
+              *ngIf="editIndex !== i"
+              class="btn btn-primary"
+              (click)="startEdit(i)"
+            >
+              Editar
+            </button>
+            <button
+              *ngIf="editIndex === i"
+              class="btn btn-success"
+              (click)="saveEdit(product)"
+            >
+              Guardar
+            </button>
+            <button
+              *ngIf="editIndex === i"
+              class="btn btn-secondary"
+              (click)="cancelEdit()"
+            >
+              Cancelar
+            </button>
+            <button class="btn btn-danger" (click)="deleteProduct(product, i)">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

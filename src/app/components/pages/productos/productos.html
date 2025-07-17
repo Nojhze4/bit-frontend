@@ -110,7 +110,7 @@
     <!-- Resultados -->
     <div class="results-section">
       <div class="results-header">
-        <h3><i class="bi bi-clipboard"></i> Resultados ({{ filteredProducts.length }} productos)</h3>
+        <h3><i class="bi bi-clipboard"></i> Resultados ({{ getSectionProducts().length }} productos)</h3>
         <div class="console-badge" *ngIf="activeTab !== 'todos'">
           <span class="badge console-badge" [style.background-color]="getConsoleColor(activeTab)">
             {{ getConsoleName(activeTab) }}
@@ -119,17 +119,15 @@
       </div>
 
       <!-- Empty State -->
-      <div *ngIf="filteredProducts.length === 0" class="empty-container">
+      <div *ngIf="getSectionProducts().length === 0" class="empty-container">
         <div class="empty-icon"><i class="bi bi-controller"></i></div>
-        <h3>No se encontraron juegos</h3>
-        <p *ngIf="activeTab === 'todos'">Intenta ajustar los filtros para encontrar más juegos</p>
-        <p *ngIf="activeTab !== 'todos'">No hay juegos disponibles para {{ getConsoleName(activeTab) }} con los filtros actuales</p>
-        <button (click)="clearFilters()" class="btn btn-primary">Ver Todos los Juegos</button>
+        <h3>No se encontraron productos</h3>
+        <button (click)="clearFilters()" class="btn btn-primary">Ver Todos</button>
       </div>
 
       <!-- Products Grid -->
-      <div *ngIf="filteredProducts.length > 0" class="products-grid">
-        <div *ngFor="let product of paginatedProducts" class="product-card">
+      <div *ngIf="getSectionProducts().length > 0" class="products-grid">
+        <div *ngFor="let product of getSectionProducts()" class="product-card">
           <div class="product-image">
             <div class="product-image-placeholder" *ngIf="!product.imageUrl">
               <span class="placeholder-icon">
@@ -234,9 +232,9 @@
       </div>
 
       <!-- Pagination Controls -->
-      <div *ngIf="filteredProducts.length > 0 && totalPages > 1" class="pagination-container">
+      <div *ngIf="getSectionProducts().length > 0 && totalPages > 1" class="pagination-container">
         <div class="pagination-info">
-          <span>Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredProducts.length) }} de {{ filteredProducts.length }} productos</span>
+          <span>Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, getSectionProducts().length) }} de {{ getSectionProducts().length }} productos</span>
         </div>
         
         <div class="pagination-controls">

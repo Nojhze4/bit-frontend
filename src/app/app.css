@@ -1,17 +1,127 @@
+/* =====================
+   APP LAYOUT
+   ===================== */
 main {
   min-height: calc(100vh - 200px);
-  padding: 2rem 0;
+  padding: var(--spacing-xl) 0;
 }
 
-:root {
-  --primary-blue: #007BFF;
-  --secondary-blue: #0056b3;
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #1a1a1a;
-  --bg-tertiary: #2a2a2a;
-  --text-primary: #ffffff;
-  --text-secondary: #b0b0b0;
-  --border-primary: #333333;
-  --shadow-dark: rgba(0, 0, 0, 0.3);
-  --shadow-blue: rgba(0, 123, 255, 0.3);
+/* =====================
+   APP CONTAINER
+   ===================== */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
+
+.app-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =====================
+   PAGE TRANSITIONS
+   ===================== */
+.page-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+.page-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+.page-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+
+/* =====================
+   GLOBAL APP STYLES
+   ===================== */
+.app-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.app-error {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--error);
+  text-align: center;
+  padding: var(--spacing-xl);
+}
+
+/* =====================
+   UTILITY CLASSES FOR APP
+   ===================== */
+.app-section {
+  padding: var(--spacing-xl) 0;
+}
+
+.app-section-alt {
+  background: var(--bg-secondary);
+  padding: var(--spacing-xl) 0;
+}
+
+.app-container-fluid {
+  width: 100%;
+  padding: 0 var(--spacing-md);
+}
+
+.app-container-sm {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.app-container-md {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.app-container-lg {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+/* =====================
+   RESPONSIVE APP LAYOUT
+   ===================== */
+@media (max-width: 768px) {
+  main {
+    padding: var(--spacing-lg) 0;
+  }
+  .app-container-fluid,
+  .app-container-sm,
+  .app-container-md,
+  .app-container-lg {
+    padding: 0 var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  main {
+    padding: var(--spacing-md) 0;
+  }
+  .app-section,
+  .app-section-alt {
+    padding: var(--spacing-lg) 0;
+  }
+} 

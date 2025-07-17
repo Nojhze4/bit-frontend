@@ -1,0 +1,17 @@
+main {
+  min-height: calc(100vh - 200px);
+  padding: 2rem 0;
+}
+
+:root {
+  --primary-blue: #007BFF;
+  --secondary-blue: #0056b3;
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #2a2a2a;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --border-primary: #333333;
+  --shadow-dark: rgba(0, 0, 0, 0.3);
+  --shadow-blue: rgba(0, 123, 255, 0.3);
+}
