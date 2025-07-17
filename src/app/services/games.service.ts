@@ -68,13 +68,13 @@ export class GamesService {
   }
 
   getPlaystationGames(): Observable<{allOK: boolean, message: string, data: Game[]}> {
-    return this.http.get<{allOK: boolean, message: string, data: Game[]}>(`${this.apiUrl}/playstation`);
+    return this.http.get<{allOK: boolean, message: string, data: Game[]}>(`${this.apiUrl}?consola=playstation`);
   }
   getXboxGames(): Observable<{allOK: boolean, message: string, data: Game[]}> {
-    return this.http.get<{allOK: boolean, message: string, data: Game[]}>(`${this.apiUrl}/xbox`);
+    return this.http.get<{allOK: boolean, message: string, data: Game[]}>(`${this.apiUrl}?consola=xbox`);
   }
   getNintendoGames(): Observable<{allOK: boolean, message: string, data: Game[]}> {
-    return this.http.get<{allOK: boolean, message: string, data: Game[]}>(`${this.apiUrl}/nintendo`);
+    return this.http.get<{allOK: boolean, message: string, data: Game[]}>(`${this.apiUrl}?consola=nintendo`);
   }
 
   createGame(game: Omit<Game, '_id' | 'createdAt' | 'updatedAt'>): Observable<{allOK: boolean, message: string, data: Game}> {

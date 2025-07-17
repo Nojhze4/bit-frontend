@@ -33,8 +33,8 @@ export interface UploadResponse {
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'http://localhost:3000/api/products';
-  private uploadUrl = 'http://localhost:3000/api/upload';
+  private apiUrl = 'http://localhost:4000/api/products';
+  private uploadUrl = 'http://localhost:4000/api/upload';
 
   constructor(private http: HttpClient) {}
 
@@ -56,6 +56,22 @@ export class ProductService {
 
   deleteProduct(id: string): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${id}`);
+  }
+
+  getConsoles(): Observable<ApiResponse<ProductModel[]>> {
+    return this.http.get<ApiResponse<ProductModel[]>>(`${this.apiUrl}/consoles`);
+  }
+
+  getAccessories(): Observable<ApiResponse<ProductModel[]>> {
+    return this.http.get<ApiResponse<ProductModel[]>>(`${this.apiUrl}/accessories`);
+  }
+
+  createConsole(console: Partial<ProductModel>): Observable<ApiResponse<ProductModel>> {
+    return this.http.post<ApiResponse<ProductModel>>(`${this.apiUrl}/consoles`, console);
+  }
+
+  createAccessory(accessory: Partial<ProductModel>): Observable<ApiResponse<ProductModel>> {
+    return this.http.post<ApiResponse<ProductModel>>(`${this.apiUrl}/accessories`, accessory);
   }
 
   // Subir imagen general

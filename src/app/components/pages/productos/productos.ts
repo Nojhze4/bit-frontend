@@ -34,6 +34,7 @@ export class Productos implements OnInit {
   xboxGames: Game[] = [];
   nintendoGames: Game[] = [];
   allGames: Game[] = [];
+  
   allProducts: ProductModel[] = [];
   
   selectedCategory: string = '';
@@ -175,6 +176,7 @@ export class Productos implements OnInit {
   }
 
   getProductType(category: string): string {
+    if (!category) return 'accesorio';
     if (category.toLowerCase().includes('playstation')) return 'consola';
     if (category.toLowerCase().includes('xbox')) return 'consola';
     if (category.toLowerCase().includes('nintendo')) return 'consola';
@@ -334,6 +336,8 @@ export class Productos implements OnInit {
     this.updatePagination();
   }
 
+  
+
   clearFilters() {
     this.selectedCategory = '';
     this.selectedType = '';
@@ -482,4 +486,17 @@ export class Productos implements OnInit {
       platform: 'Información no disponible'
     };
   }
+    buyGame(game: Game) {
+    if (game.stock > 0) {
+      // Agregar al carrito
+      this.cartService.addToCart({
+        id: game._id,
+        name: game.name,
+        price: game.precio,
+        type: 'juego',
+        imageUrl: game.imageUrl,
+        brand: game.publisher
+      });
+    }
+}
 }

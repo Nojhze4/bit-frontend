@@ -32,18 +32,27 @@ export class Dashboard implements OnInit {
     multiplayer: false,
     imageUrl: ''
   };
+  selectedFile: File | null = null;
 
-  products: ProductModel[] = [];
-  showAddProductForm = false;
-  newProduct: Partial<ProductModel> = {
+  isUploading = false;
+  consoles: ProductModel[] = [];
+  accessories: ProductModel[] = [];
+  showAddConsoleForm = false;
+  showAddAccessoryForm = false;
+  newConsole: Partial<ProductModel> & { selectedFile?: File | null, brand?: string, model?: string, features?: string, releaseYear?: number, color?: string } = {
     name: '',
-    description: '',
+    brand: '',
+    model: '',
     price: 0,
-    category: '',
     stock: 0,
-    imageUrl: ''
+    description: '',
+    imageUrl: '',
+    selectedFile: null,
+    features: '',
+    releaseYear: undefined,
+    color: ''
   };
-  selectedProductFile: File | null = null;
+  newAccessory: Partial<ProductModel> & { selectedFile?: File | null, brand?: string } = { name: '', price: 0, category: '', stock: 0, description: '', imageUrl: '', selectedFile: null, brand: '' };
 
   constructor(
     private gamesService: GamesService,
@@ -54,7 +63,8 @@ export class Dashboard implements OnInit {
 
   ngOnInit() {
     this.loadGames();
-    this.loadProducts();
+    this.loadConsoles();
+    this.loadAccessories();
   }
 
   loadGames() {
@@ -141,17 +151,62 @@ export class Dashboard implements OnInit {
     return 'stock-high';
   }
 
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      // Validar tipo de archivo
+      if (!file.type.startsWith('image/')) {
+        this.error = 'Por favor selecciona un archivo de imagen válido.';
+        return;
+      }
+      // Validar tamaño de archivo (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        this.error = 'El archivo es demasiado grande. Máximo 5MB.';
+        return;
+      }
+      this.selectedFile = file;
+      this.error = null;
+    }
+  }
+
+  uploadImage(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!this.selectedFile) {
+        reject('No hay archivo seleccionado');
+        return;
+      }
+      this.isUploading = true;
+      this.uploadService.uploadImage(this.selectedFile).subscribe({
+        next: (response) => {
+          this.isUploading = false;
+          if (response.allOK) {
+            resolve(response.data.imageUrl);
+          } else {
+            reject(response.message);
+          }
+        },
+        error: (err) => {
+          this.isUploading = false;
+          reject('Error al subir la imagen');
+        }
+      });
+    });
+  }
+
   async addGame() {
     if (!this.newGame.name || !this.newGame.consola || !this.newGame.genero || !this.newGame.descripcion || this.newGame.precio === undefined) {
       this.error = 'Todos los campos son requeridos: nombre, consola, género, descripción y precio';
       return;
     }
-    
     try {
+      let imageUrl = '';
+      if (this.selectedFile) {
+        imageUrl = await this.uploadImage();
+      }
       const gameData = {
-        ...this.newGame
+        ...this.newGame,
+        imageUrl
       } as Omit<Game, '_id' | 'createdAt' | 'updatedAt'>;
-      
       this.gamesService.createGame(gameData).subscribe({
         next: (response) => {
           if (response.allOK) {
@@ -159,7 +214,6 @@ export class Dashboard implements OnInit {
             this.showAddForm = false;
             this.resetForm();
             this.error = null;
-            // Redirigir a la página de productos
             this.router.navigate(['/productos']);
           } else {
             this.error = response.message;
@@ -189,6 +243,7 @@ export class Dashboard implements OnInit {
       multiplayer: false,
       imageUrl: ''
     };
+    this.selectedFile = null;
   }
 
   onGameImageSelected(event: any, game: Game): void {
@@ -227,33 +282,105 @@ export class Dashboard implements OnInit {
     }
   }
 
-  loadProducts() {
-    this.productService.getAllProducts().subscribe({
+  loadConsoles() {
+    this.productService.getConsoles().subscribe({
+      next: (response) => {
+        if (response.allOK) this.consoles = response.data;
+      }
+    });
+  }
+
+  loadAccessories() {
+    this.productService.getAccessories().subscribe({
+      next: (response) => {
+        if (response.allOK) this.accessories = response.data;
+      }
+    });
+  }
+
+  onConsoleImageSelected(event: any) {
+    const file = event.target.files?.[0];
+    if (file) {
+      this.newConsole.selectedFile = file;
+      this.uploadService.uploadImage(file).subscribe({
+        next: (response) => {
+          if (response.allOK) {
+            this.newConsole.imageUrl = response.data.imageUrl;
+          }
+        }
+      });
+    }
+  }
+
+  onAccessoryImageSelected(event: any) {
+    const file = event.target.files?.[0];
+    if (file) {
+      this.newAccessory.selectedFile = file;
+      this.uploadService.uploadImage(file).subscribe({
+        next: (response) => {
+          if (response.allOK) {
+            this.newAccessory.imageUrl = response.data.imageUrl;
+          }
+        }
+      });
+    }
+  }
+
+  addConsole() {
+    const consoleData = {
+      name: this.newConsole.name,
+      brand: this.newConsole.brand,
+      model: this.newConsole.model,
+      price: this.newConsole.price,
+      stock: this.newConsole.stock,
+      description: this.newConsole.description,
+      imageUrl: this.newConsole.imageUrl,
+      features: this.newConsole.features,
+      releaseYear: this.newConsole.releaseYear,
+      color: this.newConsole.color
+    };
+
+    this.productService.createConsole(consoleData).subscribe({
       next: (response) => {
         if (response.allOK) {
-          this.products = response.data;
+          this.consoles.push(response.data);
+          this.showAddConsoleForm = false;
+          this.newConsole = {
+            name: '',
+            brand: '',
+            model: '',
+            price: 0,
+            stock: 0,
+            description: '',
+            imageUrl: '',
+            selectedFile: null,
+            features: '',
+            releaseYear: undefined,
+            color: ''
+          };
+          this.router.navigate(['/productos']);
         }
       }
     });
   }
 
-  onProductFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) this.selectedProductFile = file;
-  }
+  addAccessory() {
+    const accessoryData = {
+      name: this.newAccessory.name,
+      category: this.newAccessory.category,
+      brand: this.newAccessory.brand,
+      price: this.newAccessory.price,
+      stock: this.newAccessory.stock,
+      description: this.newAccessory.description,
+      imageUrl: this.newAccessory.imageUrl
+    };
 
-  async addProduct() {
-    const productData = {
-      ...this.newProduct
-    } as Omit<ProductModel, '_id' | 'createdAt' | 'updatedAt'>;
-    this.productService.createProduct(productData).subscribe({
+    this.productService.createAccessory(accessoryData).subscribe({
       next: (response) => {
         if (response.allOK) {
-          this.products.push(response.data);
-          this.showAddProductForm = false;
-          this.newProduct = { name: '', description: '', price: 0, category: '', stock: 0, imageUrl: '' };
-          this.selectedProductFile = null;
-          // Redirigir a la página de productos
+          this.accessories.push(response.data);
+          this.showAddAccessoryForm = false;
+          this.newAccessory = { name: '', price: 0, category: '', stock: 0, description: '', imageUrl: '', selectedFile: null, brand: '' };
           this.router.navigate(['/productos']);
         }
       }
